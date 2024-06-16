@@ -16,6 +16,7 @@ import torch.utils.data
 from torchvision.transforms import RandomCrop
 from torchvision import transforms as tf
 from torch.utils.data import Dataset
+import zipfile
 
 
 from src.utils import RepresentationType, VoxelGrid, flow_16bit_to_float

@@ -14,8 +14,8 @@ from typing import Dict, Any
 import os
 import time
 
-
 class RepresentationType(Enum):
+    PATH = '/content/drive/MyDrive/DL_lesson/DLlast/checkpoints'
     VOXEL = auto()
     STEPAN = auto()
 
@@ -47,7 +47,9 @@ def save_optical_flow_to_npy(flow: torch.Tensor, file_name: str):
 @hydra.main(version_base=None, config_path="configs", config_name="base")
 def main(args: DictConfig):
     set_seed(args.seed)
+    PATH = '/content/drive/MyDrive/DL_lesson/DLlast/checkpoints'
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"device: {device}")
     '''
         ディレクトリ構造:
 
@@ -129,13 +131,20 @@ def main(args: DictConfig):
             ground_truth_flow = batch["flow_gt"].to(device) # [B, 2, 480, 640]
             flow = model(event_image) # [B, 2, 480, 640]
             loss: torch.Tensor = compute_epe_error(flow, ground_truth_flow)
-            print(f"batch {i} loss: {loss.item()}")
+            # print(f"batch {i} loss: {loss.item()}")
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
             total_loss += loss.item()
         print(f'Epoch {epoch+1}, Loss: {total_loss / len(train_data)}')
+        torch.save({
+            'epoch': epoch,
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'loss': loss,
+            
+            }, f'{PATH}/model{epoch}.pth')
 
     # Create the directory if it doesn't exist
     if not os.path.exists('checkpoints'):
