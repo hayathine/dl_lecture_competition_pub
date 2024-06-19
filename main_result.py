@@ -102,62 +102,24 @@ def main(args: DictConfig):
         Key: seq_name, Type: list
         Key: event_volume, Type: torch.Tensor, Shape: torch.Size([Batch, 4, 480, 640]) => イベントデータのバッチ
         Key: flow_gt, Type: torch.Tensor, Shape: torch.Size([Batch, 2, 480, 640]) => オプティカルフローデータのバッチ
-        Key: flow_gt_valid_mask, Type: torch.Tensor, Shape: torch.Size([Batch, 1, 480, 640]) => オプティカルフローデータのvalid. ベースラインでは使わない
-    
-    test data:
-        Type of batch: Dict
-        Key: seq_name, Type: list
-        Key: event_volume, Type: torch.Tensor, Shape: torch.Size([Batch, 4, 480, 640]) => イベントデータのバッチ
-    '''
-    # ------------------
-    #       Model
-    # ------------------
+    Key: flow_gt_valid_mask, Type: torch.Tensor, Shape: torch.Size([Batch, 1, 480, 640]) => オプティカルフローデータのvalid. ベースラインでは使わない
+
+test data:
+    Type of batch: Dict
+    Key: seq_name, Type: list
+    Key: event_volume, Type: torch.Tensor, Shape: torch.Size([Batch, 4, 480, 640]) => イベントデータのバッチ
+'''
+# ------------------
+#       Model
+# ------------------
     model = EVFlowNet(args.train).to(device)
 
-    # ------------------
-    #   optimizer
-    # ------------------
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.train.initial_learning_rate, weight_decay=args.train.weight_decay)
-    # ------------------
-    #   Start training
-    # ------------------
-    model.train()
-    for epoch in range(args.train.epochs):
-        total_loss = 0
-        print("on epoch: {}".format(epoch+1))
-        for i, batch in enumerate(tqdm(train_data)):
-            batch: Dict[str, Any]
-            event_image = batch["event_volume"].to(device) # [B, 4, 480, 640]
-            ground_truth_flow = batch["flow_gt"].to(device) # [B, 2, 480, 640]
-            flow = model(event_image) # [B, 2, 480, 640]
-            loss: torch.Tensor = compute_epe_error(flow, ground_truth_flow)
-            # print(f"batch {i} loss: {loss.item()}")
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+# ------------------
+#   Start predicting
+# ------------------
 
-            total_loss += loss.item()
-        if epoch % 10 == 0:
-            print(f'Epoch {epoch+1}, Loss: {total_loss / len(train_data)}')
-            torch.save({
-                'epoch': epoch,
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'loss': loss,
-                }, f'{PATH}/model{epoch}.pth')
-
-        # Create the directory if it doesn't exist
-        if not os.path.exists('checkpoints'):
-            os.makedirs('checkpoints')
-        
-        current_time = time.strftime("%Y%m%d%H%M%S")
-        model_path = f"{PATH}/model_{current_time}.pth"
-        torch.save(model.state_dict(), model_path)
-        print(f"Model saved to {model_path}")
-
-    # ------------------
-    #   Start predicting
-    # ------------------
+    current_time = time.strftime("%Y%m%d%H%M%S")
+    model_path = f"{PATH}/model_{current_time}.pth"
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.eval()
     flow: torch.Tensor = torch.tensor([]).to(device)
@@ -169,11 +131,11 @@ def main(args: DictConfig):
             batch_flow = model(event_image) # [1, 2, 480, 640]
             flow = torch.cat((flow, batch_flow), dim=0)  # [N, 2, 480, 640]
         print("test done")
-    # ------------------
-    #  save submission
-    # ------------------
+# ------------------
+#  save submission
+# ------------------
     file_name = "submission.npy"
     save_optical_flow_to_npy(flow, file_name)
 
-if __name__ == "__main__":
-    main()
+    if __name__ == "__main__":
+        main()
