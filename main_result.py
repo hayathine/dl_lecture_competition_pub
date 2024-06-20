@@ -117,10 +117,10 @@ test data:
 # ------------------
 #   Start predicting
 # ------------------
-
+    print("start predict")
     current_time = time.strftime("%Y%m%d%H%M%S")
     model_path = f"{PATH}/model_{current_time}.pth"
-    model.load_state_dict(torch.load(model_path, map_location=device))
+    model.load_state_dict(torch.load(f'{PATH}/model_20240618091221', map_location=device))
     model.eval()
     flow: torch.Tensor = torch.tensor([]).to(device)
     with torch.no_grad():
@@ -135,7 +135,7 @@ test data:
 #  save submission
 # ------------------
     file_name = "submission.npy"
-    save_optical_flow_to_npy(flow, file_name)
+    save_optical_flow_to_npy(flow, f'{PATH}/{file_name}')
 
     if __name__ == "__main__":
         main()
