@@ -49,7 +49,7 @@ def save_optical_flow_to_npy(flow: torch.Tensor, file_name: str):
 @hydra.main(version_base=None, config_path="configs", config_name="base")
 def main(args: DictConfig):
     set_seed(args.seed)
-    SAVE_NAME = PATH(args.save_name)
+    SAVE_NAME = Path(args.save_name)
     PATH = Path(args.path)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"device: {device}")
@@ -130,7 +130,7 @@ def main(args: DictConfig):
     if os.path.exists(model_path):
         model.load_state_dict(torch.load(model_path, map_location=device))
     model.train()
-    for epoch in range(args.train.num_epochs):
+    for epoch in range(args.train.epochs):
         total_loss = 0
         print(f"Epoch {epoch+1} start")
         for i, batch in enumerate(tqdm(train_data)):
