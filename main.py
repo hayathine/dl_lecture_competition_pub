@@ -49,6 +49,7 @@ def save_optical_flow_to_npy(flow: torch.Tensor, file_name: str):
 @hydra.main(version_base=None, config_path="configs", config_name="base")
 def main(args: DictConfig):
     set_seed(args.seed)
+    SAVE_NAME = PATH(args.save_name)
     PATH = Path(args.path)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"device: {device}")
@@ -125,12 +126,13 @@ def main(args: DictConfig):
     # ------------------
     
     current_time = time.strftime("%Y%m%d%H%M%S")
-    model_path = f"{PATH}/model_{current_time}.pth"
-    model.load_state_dict(torch.load(model_path, map_location=device))
+    model_path = f"{PATH}/{SAVE_NAME}"
+    if os.path.exists(model_path):
+        model.load_state_dict(torch.load(model_path, map_location=device))
     model.train()
-    for epoch in range(args.train.epochs):
+    for epoch in range(args.train.num_epochs):
         total_loss = 0
-        print("on epoch: {}".format(epoch+1))
+        print(f"Epoch {epoch+1} start")
         for i, batch in enumerate(tqdm(train_data)):
             batch: Dict[str, Any]
             event_image = batch["event_volume"].to(device) # [B, 4, 480, 640]
@@ -143,6 +145,7 @@ def main(args: DictConfig):
             optimizer.step()
 
             total_loss += loss.item()
+
         if epoch % 10 == 0:
             print(f'Epoch {epoch+1}, Loss: {total_loss / len(train_data)}')
             torch.save({
@@ -150,7 +153,7 @@ def main(args: DictConfig):
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'loss': loss,
-                }, f'{PATH}/model{epoch}.pth')
+                }, f'{PATH}/{SAVE_NAME}')
 
         # Create the directory if it doesn't exist
         if not os.path.exists('checkpoints'):
