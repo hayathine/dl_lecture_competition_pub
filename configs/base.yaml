@@ -1,4 +1,5 @@
 dataset_path: data
+path: /content/drive/MyDrive/DL_lesson/DLlast/dl_lecture_competition_pub/checkpoints
 seed: 42
 num_epoch: 1
 data_loader:
