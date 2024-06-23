@@ -49,7 +49,8 @@ def save_optical_flow_to_npy(flow: torch.Tensor, file_name: str):
 @hydra.main(version_base=None, config_path="configs", config_name="base")
 def main(args: DictConfig):
     set_seed(args.seed)
-    PATH = Path(args.path)
+    DATASET_PATH = os.environ.get("DATASET")
+    PATH = '/content/drive/MyDrive/DL_lesson/DLlast/dl_lecture_competition_pub/checkpoints'
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"device: {device}")
     '''
@@ -79,7 +80,7 @@ def main(args: DictConfig):
     #    Dataloader
     # ------------------
     loader = DatasetProvider(
-        dataset_path=args.dataset_path,
+        dataset_path=Path(DATASET_PATH),
         representation_type=RepresentationType.VOXEL,
         delta_t_ms=100,
         num_bins=4
