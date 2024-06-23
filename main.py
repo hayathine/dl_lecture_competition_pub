@@ -14,7 +14,7 @@ from typing import Dict, Any
 import os
 import time
 
-DATASET_PATH = os.environ.get("DATASET")
+
 
 class RepresentationType(Enum):
     PATH = '/content/drive/MyDrive/DL_lesson/DLlast/checkpoints'
@@ -49,6 +49,7 @@ def save_optical_flow_to_npy(flow: torch.Tensor, file_name: str):
 @hydra.main(version_base=None, config_path="configs", config_name="base")
 def main(args: DictConfig):
     set_seed(args.seed)
+    DATASET_PATH = os.environ.get("DATASET")
     PATH = '/content/drive/MyDrive/DL_lesson/DLlast/dl_lecture_competition_pub/checkpoints'
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"device: {device}")
@@ -88,15 +89,15 @@ def main(args: DictConfig):
     test_set = loader.get_test_dataset()
     collate_fn = train_collate
     train_data = DataLoader(train_set,
-                                 batch_size=args.data_loader.train.batch_size,
-                                 shuffle=args.data_loader.train.shuffle,
-                                 collate_fn=collate_fn,
-                                 drop_last=False)
+                                batch_size=args.data_loader.train.batch_size,
+                                shuffle=args.data_loader.train.shuffle,
+                                collate_fn=collate_fn,
+                                drop_last=False)
     test_data = DataLoader(test_set,
-                                 batch_size=args.data_loader.test.batch_size,
-                                 shuffle=args.data_loader.test.shuffle,
-                                 collate_fn=collate_fn,
-                                 drop_last=False)
+                                batch_size=args.data_loader.test.batch_size,
+                                shuffle=args.data_loader.test.shuffle,
+                                collate_fn=collate_fn,
+                                drop_last=False)
 
     '''
     train data:
