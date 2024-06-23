@@ -14,6 +14,8 @@ from typing import Dict, Any
 import os
 import time
 
+DATASET_PATH = os.environ.get("DATASET")
+
 class RepresentationType(Enum):
     PATH = '/content/drive/MyDrive/DL_lesson/DLlast/checkpoints'
     VOXEL = auto()
@@ -77,7 +79,7 @@ def main(args: DictConfig):
     #    Dataloader
     # ------------------
     loader = DatasetProvider(
-        dataset_path=Path(args.dataset_path),
+        dataset_path=Path(DATASET_PATH),
         representation_type=RepresentationType.VOXEL,
         delta_t_ms=100,
         num_bins=4
@@ -121,6 +123,10 @@ def main(args: DictConfig):
     # ------------------
     #   Start training
     # ------------------
+    
+    current_time = time.strftime("%Y%m%d%H%M%S")
+    model_path = f"{PATH}/model_{current_time}.pth"
+    model.load_state_dict(torch.load(model_path, map_location=device))
     model.train()
     for epoch in range(args.train.epochs):
         total_loss = 0
@@ -150,8 +156,6 @@ def main(args: DictConfig):
         if not os.path.exists('checkpoints'):
             os.makedirs('checkpoints')
         
-        current_time = time.strftime("%Y%m%d%H%M%S")
-        model_path = f"{PATH}/model_{current_time}.pth"
         torch.save(model.state_dict(), model_path)
         print(f"Model saved to {model_path}")
 
