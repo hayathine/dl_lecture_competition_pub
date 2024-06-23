@@ -14,6 +14,8 @@ from typing import Dict, Any
 import os
 import time
 
+
+
 class RepresentationType(Enum):
     PATH = '/content/drive/MyDrive/DL_lesson/DLlast/checkpoints'
     VOXEL = auto()
@@ -47,6 +49,7 @@ def save_optical_flow_to_npy(flow: torch.Tensor, file_name: str):
 @hydra.main(version_base=None, config_path="configs", config_name="base")
 def main(args: DictConfig):
     set_seed(args.seed)
+    DATASET_PATH = os.environ.get("DATASET")
     PATH = '/content/drive/MyDrive/DL_lesson/DLlast/dl_lecture_competition_pub/checkpoints'
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"device: {device}")
@@ -77,7 +80,7 @@ def main(args: DictConfig):
     #    Dataloader
     # ------------------
     loader = DatasetProvider(
-        dataset_path=Path(args.dataset_path),
+        dataset_path=Path(DATASET_PATH),
         representation_type=RepresentationType.VOXEL,
         delta_t_ms=100,
         num_bins=4
@@ -86,15 +89,15 @@ def main(args: DictConfig):
     test_set = loader.get_test_dataset()
     collate_fn = train_collate
     train_data = DataLoader(train_set,
-                                 batch_size=args.data_loader.train.batch_size,
-                                 shuffle=args.data_loader.train.shuffle,
-                                 collate_fn=collate_fn,
-                                 drop_last=False)
+                                batch_size=args.data_loader.train.batch_size,
+                                shuffle=args.data_loader.train.shuffle,
+                                collate_fn=collate_fn,
+                                drop_last=False)
     test_data = DataLoader(test_set,
-                                 batch_size=args.data_loader.test.batch_size,
-                                 shuffle=args.data_loader.test.shuffle,
-                                 collate_fn=collate_fn,
-                                 drop_last=False)
+                                batch_size=args.data_loader.test.batch_size,
+                                shuffle=args.data_loader.test.shuffle,
+                                collate_fn=collate_fn,
+                                drop_last=False)
 
     '''
     train data:
@@ -121,6 +124,10 @@ def main(args: DictConfig):
     # ------------------
     #   Start training
     # ------------------
+    
+    current_time = time.strftime("%Y%m%d%H%M%S")
+    model_path = f"{PATH}/model_{current_time}.pth"
+    model.load_state_dict(torch.load(model_path, map_location=device))
     model.train()
     for epoch in range(args.train.epochs):
         total_loss = 0
@@ -150,8 +157,6 @@ def main(args: DictConfig):
         if not os.path.exists('checkpoints'):
             os.makedirs('checkpoints')
         
-        current_time = time.strftime("%Y%m%d%H%M%S")
-        model_path = f"{PATH}/model_{current_time}.pth"
         torch.save(model.state_dict(), model_path)
         print(f"Model saved to {model_path}")
 
