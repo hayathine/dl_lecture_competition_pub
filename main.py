@@ -179,7 +179,7 @@ def main(args: DictConfig):
     # ------------------
     #  save submission
     # ------------------
-    file_name = "submission.npy"
+    file_name = "submission"
     save_optical_flow_to_npy(flow, file_name)
 
 if __name__ == "__main__":
