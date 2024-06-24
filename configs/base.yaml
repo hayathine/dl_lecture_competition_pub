@@ -2,8 +2,7 @@ dataset_path: data
 path: checkpoints
 seed: 42
 num_epoch: 1
-save_name: n001.pth
-load_name: n001.pth
+save_name: no001.pth
 data_loader:
   common:
     num_voxel_bins: 15
