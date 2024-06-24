@@ -47,7 +47,7 @@ def save_optical_flow_to_npy(flow: torch.Tensor, file_name: str):
     np.save(f"{file_name}.npy", flow.cpu().numpy())
 
 def get_time():
-    return time.strftime("%Y%m%d%H%M%S")
+    return time.strftime("%Y%m%d%H%M")
 
 @hydra.main(version_base=None, config_path="configs", config_name="base")
 def main(args: DictConfig):
