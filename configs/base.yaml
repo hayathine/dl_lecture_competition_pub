@@ -2,6 +2,7 @@ dataset_path: data
 path: checkpoints
 seed: 42
 num_epoch: 1
+num_workers: 2
 save_name: n001.pth
 load_name: n001.pth
 data_loader:
