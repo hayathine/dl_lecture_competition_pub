@@ -94,11 +94,13 @@ def main(args: DictConfig):
     collate_fn = train_collate
     train_data = DataLoader(train_set,
                                 batch_size=args.data_loader.train.batch_size,
+                                num_workers=Path(args.num_workers),
                                 shuffle=args.data_loader.train.shuffle,
                                 collate_fn=collate_fn,
                                 drop_last=False)
     test_data = DataLoader(test_set,
                                 batch_size=args.data_loader.test.batch_size,
+                                num_workers=Path(args.num_workers),
                                 shuffle=args.data_loader.test.shuffle,
                                 collate_fn=collate_fn,
                                 drop_last=False)
@@ -153,12 +155,7 @@ def main(args: DictConfig):
 
 
         print(f"epoch:{epoch} batch {i} loss: {loss.item()}")
-        torch.save({
-            'epoch': epoch,
-            'model_state_dict': model.state_dict(),
-            'optimizer_state_dict': optimizer.state_dict(),
-            'loss': loss,
-            }, model_save_path)
+        torch.save(model.state_dict(), model_save_path)
 
         # Create the directory if it doesn't exist
         if not os.path.exists('checkpoints'):
@@ -170,7 +167,10 @@ def main(args: DictConfig):
     # ------------------
     #   Start predicting
     # ------------------
-    model.load_state_dict(torch.load(model_save_path, map_location=device))
+    if os.path.exists(model_save_path):
+        model.load_state_dict(torch.load(model_save_path, map_location=device))
+    else:
+        model.load_state_dict(torch.load(model_load_path, map_location=device))
     model.eval()
     flow: torch.Tensor = torch.tensor([]).to(device)
     with torch.no_grad():
