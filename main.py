@@ -17,7 +17,6 @@ import time
 
 
 class RepresentationType(Enum):
-    PATH = '/content/drive/MyDrive/DL_lesson/DLlast/checkpoints'
     VOXEL = auto()
     STEPAN = auto()
 
@@ -46,10 +45,14 @@ def save_optical_flow_to_npy(flow: torch.Tensor, file_name: str):
     '''
     np.save(f"{file_name}.npy", flow.cpu().numpy())
 
+def get_time():
+    return time.strftime("%Y%m%d%H%M%S")
+
 @hydra.main(version_base=None, config_path="configs", config_name="base")
 def main(args: DictConfig):
     set_seed(args.seed)
     SAVE_NAME = Path(args.save_name)
+    LOAD_NAME = Path(args.load_name)    
     PATH = Path(args.path)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"device: {device}")
@@ -125,10 +128,12 @@ def main(args: DictConfig):
     #   Start training
     # ------------------
     
-    current_time = time.strftime("%Y%m%d%H%M%S")
-    model_path = f"{PATH}/{SAVE_NAME}"
-    if os.path.exists(model_path):
-        model.load_state_dict(torch.load(model_path, map_location=device))
+    current_time = get_time()
+    model_load_path = f"{PATH}/{LOAD_NAME}"
+    model_save_path = f'{PATH}/{current_time}_{epoch}_{SAVE_NAME}'
+
+    if os.path.exists(model_load_path):
+        model.load_state_dict(torch.load(model_load_path, map_location=device))
     model.train()
     for epoch in range(args.train.epochs):
         total_loss = 0
@@ -139,33 +144,32 @@ def main(args: DictConfig):
             ground_truth_flow = batch["flow_gt"].to(device) # [B, 2, 480, 640]
             flow = model(event_image) # [B, 2, 480, 640]
             loss: torch.Tensor = compute_epe_error(flow, ground_truth_flow)
-            # print(f"batch {i} loss: {loss.item()}")
+            print(f"batch {i} loss: {loss.item()}")
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
             total_loss += loss.item()
 
-        if epoch % 10 == 0:
-            print(f'Epoch {epoch+1}, Loss: {total_loss / len(train_data)}')
-            torch.save({
-                'epoch': epoch,
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'loss': loss,
-                }, f'{PATH}/{SAVE_NAME}')
+
+        torch.save({
+            'epoch': epoch,
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'loss': loss,
+            }, model_save_path)
 
         # Create the directory if it doesn't exist
         if not os.path.exists('checkpoints'):
             os.makedirs('checkpoints')
         
-        torch.save(model.state_dict(), model_path)
-        print(f"Model saved to {model_path}")
+        # torch.save(model.state_dict(), model_load_path)
+        print(f"Model saved to {model_save_path}")
 
     # ------------------
     #   Start predicting
     # ------------------
-    model.load_state_dict(torch.load(model_path, map_location=device))
+    model.load_state_dict(torch.load(model_save_path, map_location=device))
     model.eval()
     flow: torch.Tensor = torch.tensor([]).to(device)
     with torch.no_grad():
