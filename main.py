@@ -94,13 +94,13 @@ def main(args: DictConfig):
     collate_fn = train_collate
     train_data = DataLoader(train_set,
                                 batch_size=args.data_loader.train.batch_size,
-                                num_workers=Path(args.num_workers),
+                                num_workers=int(Path(args.num_workers)),
                                 shuffle=args.data_loader.train.shuffle,
                                 collate_fn=collate_fn,
                                 drop_last=False)
     test_data = DataLoader(test_set,
                                 batch_size=args.data_loader.test.batch_size,
-                                num_workers=Path(args.num_workers),
+                                num_workers=int(Path(args.num_workers)),
                                 shuffle=args.data_loader.test.shuffle,
                                 collate_fn=collate_fn,
                                 drop_last=False)
