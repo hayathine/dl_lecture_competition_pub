@@ -130,13 +130,13 @@ def main(args: DictConfig):
     # ------------------
     
     current_time = get_time()
-    model_load_path = f"{PATH}/{LOAD_NAME}"
+    model_load_path = f"checkpoints/{LOAD_NAME}"
 
     if os.path.exists(model_load_path):
         model.load_state_dict(torch.load(model_load_path, map_location=device))
     model.train()
     for epoch in range(args.train.epochs):
-        model_save_path = f'{PATH}/{current_time}_{epoch}_{SAVE_NAME}'
+        model_save_path = f'checkpoints/{current_time}_{epoch}_{SAVE_NAME}'
         total_loss = 0
         print(f"Epoch {epoch+1} start")
         for i, batch in enumerate(tqdm(train_data)):
@@ -145,7 +145,6 @@ def main(args: DictConfig):
             ground_truth_flow = batch["flow_gt"].to(device) # [B, 2, 480, 640]
             flow = model(event_image) # [B, 2, 480, 640]
             loss: torch.Tensor = compute_epe_error(flow, ground_truth_flow)
-            print(f"batch {i} loss: {loss.item()}")
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -153,6 +152,7 @@ def main(args: DictConfig):
             total_loss += loss.item()
 
 
+        print(f"epoch:{epoch} batch {i} loss: {loss.item()}")
         torch.save({
             'epoch': epoch,
             'model_state_dict': model.state_dict(),
