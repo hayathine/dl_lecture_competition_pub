@@ -131,12 +131,12 @@ def main(args: DictConfig):
     
     current_time = get_time()
     model_load_path = f"{PATH}/{LOAD_NAME}"
-    model_save_path = f'{PATH}/{current_time}_{epoch}_{SAVE_NAME}'
 
     if os.path.exists(model_load_path):
         model.load_state_dict(torch.load(model_load_path, map_location=device))
     model.train()
     for epoch in range(args.train.epochs):
+        model_save_path = f'{PATH}/{current_time}_{epoch}_{SAVE_NAME}'
         total_loss = 0
         print(f"Epoch {epoch+1} start")
         for i, batch in enumerate(tqdm(train_data)):
