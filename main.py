@@ -14,7 +14,7 @@ from typing import Dict, Any
 import os
 import datetime
 
-
+# trainデータの中身を確認する
 
 class RepresentationType(Enum):
     PATH = '/content/drive/MyDrive/DL_lesson/DLlast/checkpoints'
@@ -47,7 +47,7 @@ def save_optical_flow_to_npy(flow: torch.Tensor, file_name: str):
     np.save(f"{file_name}.npy", flow.cpu().numpy())
 
 def get_time():
-    time = datetime.datetime.now()
+    time = datetime.datetime.utcnow() + datetime.timedelta(hours=9)
     return time.strftime("%Y%m%d%H%M")
 
 @hydra.main(version_base=None, config_path="configs", config_name="base")
@@ -85,11 +85,21 @@ def main(args: DictConfig):
     # ------------------
     #    Dataloader
     # ------------------
+    """
+    VOXEL
+    3次元ボクセルデータを使用する場合は、このオプションを選択します。
+    delta_t_ms:
+    イベントデータの時間間隔（ms）。
+    num_bins:
+    イベントデータのビン数。
+    """
     loader = DatasetProvider(
         dataset_path=Path(args.dataset_path),
         representation_type=RepresentationType.VOXEL,
         delta_t_ms=100,
-        num_bins=4
+        num_bins=4,
+        visualize=True,
+        config=None
     )
     train_set = loader.get_train_dataset()
     test_set = loader.get_test_dataset()
@@ -114,6 +124,8 @@ def main(args: DictConfig):
         Key: event_volume, Type: torch.Tensor, Shape: torch.Size([Batch, 4, 480, 640]) => イベントデータのバッチ
         Key: flow_gt, Type: torch.Tensor, Shape: torch.Size([Batch, 2, 480, 640]) => オプティカルフローデータのバッチ
         Key: flow_gt_valid_mask, Type: torch.Tensor, Shape: torch.Size([Batch, 1, 480, 640]) => オプティカルフローデータのvalid. ベースラインでは使わない
+        TODO: flow_gt_valid_mask多分何かに使える
+
     
     test data:
         Type of batch: Dict
@@ -188,7 +200,10 @@ def main(args: DictConfig):
         オプティカルフローデータを `.npy` ファイルに保存する.
         97データがテストデータとして与えられる．
         - テストデータに対する回答は正解のオプティカルフローとし，訓練時には与えられない．
-    
+    batch_flow:
+        バッチごとのオプティカルフローデータを格納するための変数?
+    flow:
+        オプティカルフローデータを格納するための変数?
     """
     if 'model_save_path' in locals():
         model_load = model_save_path

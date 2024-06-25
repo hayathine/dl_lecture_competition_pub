@@ -11,3 +11,7 @@ https://hydra.cc/docs/intro/
 lossが増えている→過学習？
 
 dropoutを実装する
+
+#### 2024年6月25日13:28
+
+trainデータの中身を確認する

@@ -443,7 +443,7 @@ class Sequence(Dataset):
 
 class SequenceRecurrent(Sequence):
     def __init__(self, seq_path: Path, representation_type: RepresentationType, mode: str = 'test', delta_t_ms: int = 100,
-                 num_bins: int = 15, transforms=None, sequence_length=1, name_idx=0, visualize=False, load_gt=False):
+                num_bins: int = 15, transforms=None, sequence_length=1, name_idx=0, visualize=False, load_gt=False):
         super(SequenceRecurrent, self).__init__(seq_path, representation_type, mode, delta_t_ms, transforms=transforms,
                                                 name_idx=name_idx, visualize=visualize, load_gt=load_gt)
         self.crop_size = self.transforms['randomcrop'] if 'randomcrop' in self.transforms else None
@@ -543,10 +543,10 @@ class DatasetProvider:
         for child in test_path.iterdir():
             self.name_mapper_test.append(str(child).split("/")[-1])
             test_sequences.append(Sequence(child, representation_type, 'test', delta_t_ms, num_bins,
-                                               transforms=[],
-                                               name_idx=len(
-                                                   self.name_mapper_test)-1,
-                                               visualize=visualize))
+                                                transforms=[],
+                                                name_idx=len(
+                                                    self.name_mapper_test)-1,
+                                                    visualize=visualize))
 
         self.test_dataset = torch.utils.data.ConcatDataset(test_sequences)
 
@@ -559,7 +559,7 @@ class DatasetProvider:
         for seq in seqs:
             extra_arg = dict()
             train_sequences.append(Sequence(Path(train_path) / seq,
-                                   representation_type=representation_type, mode="train",
+                                    representation_type=representation_type, mode="train",
                                    load_gt=True, **extra_arg))
             self.train_dataset: torch.utils.data.ConcatDataset[Sequence] = torch.utils.data.ConcatDataset(train_sequences)
 
@@ -581,7 +581,16 @@ class DatasetProvider:
         logger.write_line("Number of Train Sequences: {}".format(
             len(self.train_dataset)), True)
 
+
 def train_collate(sample_list):
+    """_summary_
+
+    Args:
+        sample_list (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     batch = dict()
     for field_name in sample_list[0]:
         if field_name == 'timestamp':
@@ -590,7 +599,7 @@ def train_collate(sample_list):
             batch['seq_name'] = [sample[field_name] for sample in sample_list]
         if field_name == 'new_sequence':
             batch['new_sequence'] = [sample[field_name]
-                                     for sample in sample_list]
+                                    for sample in sample_list]
         if field_name.startswith("event_volume"):
             batch[field_name] = torch.stack(
                 [sample[field_name] for sample in sample_list])
