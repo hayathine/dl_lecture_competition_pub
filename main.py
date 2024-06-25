@@ -132,7 +132,17 @@ def main(args: DictConfig):
     # ------------------
     #   Start training
     # ------------------
+    """
+    訓練データは合計2015データあり, 
+    イベントデータ，タイムスタンプ，正解オプティカルフローのRGB画像が与えられる．
+    flow:
+        オプティカルフローデータを格納するための変数?
+    flow_gt:
+        訓練データの正解のオプティカルフローデータ?
+    compute_epe_error:
+        予測されたオプティカルフローと正解データのend point errorを計算する.
     
+    """
     current_time = get_time()
     model_load_path = f"checkpoints/{LOAD_NAME}"
 
@@ -142,14 +152,14 @@ def main(args: DictConfig):
     for epoch in range(args.train.epochs):
         model_save_path = f'checkpoints/{current_time}_{epoch}_{SAVE_NAME}'
         total_loss = 0
-        print(f"Epoch {epoch+1} start")
+        # print(f"Epoch {epoch+1} start")
         for i, batch in enumerate(tqdm(train_data)):
             batch: Dict[str, Any]
             event_image = batch["event_volume"].to(device) # [B, 4, 480, 640]
             ground_truth_flow = batch["flow_gt"].to(device) # [B, 2, 480, 640]
             flow = model(event_image) # [B, 2, 480, 640]
             loss: torch.Tensor = compute_epe_error(flow, ground_truth_flow)
-            optimizer.zero_grad()
+            optimizer.zero_grad()   
             loss.backward()
             optimizer.step()
 
@@ -169,10 +179,22 @@ def main(args: DictConfig):
     # ------------------
     #   Start predicting
     # ------------------
-    if model_save_path:
+    """
+    _summary_
+    tqdm:プログレスバーを表示するライブラリ
+    `compute_epe_error`: 
+        予測されたオプティカルフローと正解データのend point errorを計算する.
+    `save_optical_flow_to_npy`: 
+        オプティカルフローデータを `.npy` ファイルに保存する.
+        97データがテストデータとして与えられる．
+        - テストデータに対する回答は正解のオプティカルフローとし，訓練時には与えられない．
+    
+    """
+    if 'model_save_path' in locals():
         model_load = model_save_path
     else:
         model_load = model_load_path
+
     model.load_state_dict(torch.load(model_load, map_location=device))
     model.eval()
     flow: torch.Tensor = torch.tensor([]).to(device)
@@ -180,10 +202,11 @@ def main(args: DictConfig):
         print(f"start test:{model_load}_model")
         for batch in tqdm(test_data):
             batch: Dict[str, Any]
-            event_image = batch["event_volume"].to(device)
+            event_image = batch["event_volume"].to(device) # [1, 4, 480, 640]
             batch_flow = model(event_image) # [1, 2, 480, 640]
             flow = torch.cat((flow, batch_flow), dim=0)  # [N, 2, 480, 640]
         print("test done")
+
     # ------------------
     #  save submission
     # ------------------
