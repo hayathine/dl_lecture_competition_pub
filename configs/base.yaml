@@ -1,6 +1,8 @@
 dataset_path: data
 path: checkpoints
 seed: 42
+# https://zenn.dev/fkubota/articles/2b8d46b11c178ac2fa2d
+test: false
 num_epoch: 1
 num_workers: 2
 save_name: n001.pth

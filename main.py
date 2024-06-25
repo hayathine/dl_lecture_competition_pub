@@ -160,6 +160,9 @@ def main(args: DictConfig):
 
     if os.path.exists(model_load_path):
         model.load_state_dict(torch.load(model_load_path, map_location=device))
+        print(f"Model loaded from {model_load_path}")
+    else:
+        print("First training model")
     model.train()
     for epoch in range(args.train.epochs):
         model_save_path = f'checkpoints/{current_time}_{epoch}_{SAVE_NAME}'
