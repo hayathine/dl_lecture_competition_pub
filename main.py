@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Dict, Any
 import os
 import datetime
-
+from pytz import timezone
 # trainデータの中身を確認する
 
 class RepresentationType(Enum):
@@ -47,7 +47,7 @@ def save_optical_flow_to_npy(flow: torch.Tensor, file_name: str):
     np.save(f"{file_name}.npy", flow.cpu().numpy())
 
 def get_time():
-    time = datetime.datetime.utcnow() + datetime.timedelta(hours=9)
+    time = datetime.datetime.now(timezone('Asia/Tokyo'))
     return time.strftime("%Y%m%d%H%M")
 
 @hydra.main(version_base=None, config_path="configs", config_name="base")
