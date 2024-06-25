@@ -12,7 +12,7 @@ from tqdm import tqdm
 from pathlib import Path
 from typing import Dict, Any
 import os
-import time
+import datetime
 
 
 
@@ -47,6 +47,7 @@ def save_optical_flow_to_npy(flow: torch.Tensor, file_name: str):
     np.save(f"{file_name}.npy", flow.cpu().numpy())
 
 def get_time():
+    time = datetime.datetime.now()
     return time.strftime("%Y%m%d%H%M")
 
 @hydra.main(version_base=None, config_path="configs", config_name="base")
@@ -54,7 +55,6 @@ def main(args: DictConfig):
     set_seed(args.seed)
     SAVE_NAME = Path(args.save_name)
     LOAD_NAME = Path(args.load_name)    
-    PATH = Path(args.path)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"device: {device}")
     '''
@@ -79,6 +79,8 @@ def main(args: DictConfig):
             ├─zurich_city_11_b
             └─zurich_city_11_c
         '''
+        
+    # TODO:transformer追加
     
     # ------------------
     #    Dataloader
@@ -167,14 +169,15 @@ def main(args: DictConfig):
     # ------------------
     #   Start predicting
     # ------------------
-    if os.path.exists(model_save_path):
-        model.load_state_dict(torch.load(model_save_path, map_location=device))
+    if model_save_path:
+        model_load = model_save_path
     else:
-        model.load_state_dict(torch.load(model_load_path, map_location=device))
+        model_load = model_load_path
+    model.load_state_dict(torch.load(model_load, map_location=device))
     model.eval()
     flow: torch.Tensor = torch.tensor([]).to(device)
     with torch.no_grad():
-        print("start test")
+        print(f"start test:{model_load}_model")
         for batch in tqdm(test_data):
             batch: Dict[str, Any]
             event_image = batch["event_volume"].to(device)

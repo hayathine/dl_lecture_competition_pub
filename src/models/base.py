@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-
+# transitionで使用されている
 class build_resnet_block(nn.Module):
     """
     a resnet block which includes two general_conv2d
@@ -11,42 +11,46 @@ class build_resnet_block(nn.Module):
         self._layers = layers
 
         self.res_block = nn.Sequential(*[general_conv2d(in_channels=self._channels,
-                                             out_channels=self._channels,
-                                             strides=1,
-                                             do_batch_norm=do_batch_norm) for i in range(self._layers)])
+                                            out_channels=self._channels,
+                                            strides=1,
+                                            do_batch_norm=do_batch_norm) for i in range(self._layers)])
 
     def forward(self,input_res):
         inputs = input_res.clone()
         input_res = self.res_block(input_res)
         return input_res + inputs
 
+# decorderで使用されている
 class upsample_conv2d_and_predict_flow(nn.Module):
     """
     an upsample convolution layer which includes a nearest interpolate and a general_conv2d
     """
-    def __init__(self, in_channels, out_channels, ksize=3, do_batch_norm=False):
+    def __init__(self, in_channels, out_channels, ksize=3, do_batch_norm=False, dropout=0):
         super(upsample_conv2d_and_predict_flow, self).__init__()
         self._in_channels = in_channels
         self._out_channels = out_channels
         self._ksize = ksize
         self._do_batch_norm = do_batch_norm
+        self._dropout = dropout
 
         self.general_conv2d = general_conv2d(in_channels=self._in_channels,
-                                             out_channels=self._out_channels,
-                                             ksize=self._ksize,
-                                             strides=1,
-                                             do_batch_norm=self._do_batch_norm,
-                                             padding=0)
+                                            out_channels=self._out_channels,
+                                            ksize=self._ksize,
+                                            strides=1,
+                                            do_batch_norm=self._do_batch_norm,
+                                            padding=0,
+                                            dropout=self._dropout
+                                            )
         
         self.pad = nn.ReflectionPad2d(padding=(int((self._ksize-1)/2), int((self._ksize-1)/2),
                                         int((self._ksize-1)/2), int((self._ksize-1)/2)))
 
         self.predict_flow = general_conv2d(in_channels=self._out_channels,
-                                           out_channels=2,
-                                           ksize=1,
-                                           strides=1,
-                                           padding=0,
-                                           activation='tanh')
+                                            out_channels=2,
+                                            ksize=1,
+                                            strides=1,
+                                            padding=0,
+                                            activation='tanh')
 
     def forward(self, conv):
         shape = conv.shape
@@ -58,7 +62,8 @@ class upsample_conv2d_and_predict_flow(nn.Module):
         
         return torch.cat([conv,flow.clone()], dim=1), flow
 
-def general_conv2d(in_channels,out_channels, ksize=3, strides=2, padding=1, do_batch_norm=False, activation='relu'):
+# encoderで使用されている
+def general_conv2d(in_channels,out_channels, ksize=3, strides=2, padding=1, do_batch_norm=False, dropout=0, activation='relu'):
     """
     a general convolution layer which includes a conv2d, a relu and a batch_normalize
     """
@@ -68,13 +73,15 @@ def general_conv2d(in_channels,out_channels, ksize=3, strides=2, padding=1, do_b
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
                         stride=strides,padding=padding),
                 nn.ReLU(inplace=True),
-                nn.BatchNorm2d(out_channels,eps=1e-5,momentum=0.99)
+                nn.BatchNorm2d(out_channels,eps=1e-5,momentum=0.99),
+                nn.Dropout(p=dropout)
             )
         else:
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
                         stride=strides,padding=padding),
-                nn.ReLU(inplace=True)
+                nn.ReLU(inplace=True),
+                nn.Dropout(p=dropout)
             )
     elif activation == 'tanh':
         if do_batch_norm:
@@ -82,12 +89,14 @@ def general_conv2d(in_channels,out_channels, ksize=3, strides=2, padding=1, do_b
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
                         stride=strides,padding=padding),
                 nn.Tanh(),
-                nn.BatchNorm2d(out_channels,eps=1e-5,momentum=0.99)
+                nn.BatchNorm2d(out_channels,eps=1e-5,momentum=0.99),
+                nn.Dropout(p=dropout)
             )
         else:
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
                         stride=strides,padding=padding),
-                nn.Tanh()
+                nn.Tanh(),
+                nn.Dropout(p=dropout)
             )
     return conv2d
