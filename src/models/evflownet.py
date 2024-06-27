@@ -68,6 +68,8 @@ class EVFlowNet(nn.Module):
         inputs, flow = self.decoder4(inputs)
         flow_dict['flow3'] = flow.clone()
         # 最後のflowだけを用いているflow_dictを活用する
+        print(flow_dict['flow3'].shape)
+        print(flow_dict.values)
         flow = np.mean(flow_dict.values)
         return flow
         
