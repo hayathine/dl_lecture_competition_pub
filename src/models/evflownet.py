@@ -2,6 +2,7 @@ import torch
 from torch import nn
 from src.models.base import *
 from typing import Dict, Any
+import numpy as np
 
 _BASE_CHANNELS = 64
 
@@ -66,7 +67,8 @@ class EVFlowNet(nn.Module):
         inputs = torch.cat([inputs, skip_connections['skip0']], dim=1)
         inputs, flow = self.decoder4(inputs)
         flow_dict['flow3'] = flow.clone()
-
+        # 最後のflowだけを用いているflow_dictを活用する
+        flow = np.mean(flow_dict.values)
         return flow
         
 

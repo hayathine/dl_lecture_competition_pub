@@ -17,7 +17,7 @@ dropoutを実装する→lossが増加する
 trainデータの中身を確認する
 
 #### 2024年6月27日
-バッチの擬似的
+バッチの擬似的拡張
 https://kozodoi.me/blog/20210219/gradient-accumulation
     for x, _ in train_dl:
         step_count += 1
@@ -38,5 +38,5 @@ https://kozodoi.me/blog/20210219/gradient-accumulation
 - 異なるスケールでのロスを足し合わせる．
   - ベースラインモデルはUNet構造なので，デコーダーの中間層の出力は最終的な出力サイズの0.5,0.25,...倍になっています．各中間層の出力を用いてロスを計算することで，勾配消失を防ぎ，性能向上が見込めます．
 
-dataのpickle化による
+dataのpickle化によるロード短縮化
 https://hyper-pigeon.hatenablog.com/entry/2021/08/04/225814
