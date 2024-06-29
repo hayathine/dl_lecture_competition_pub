@@ -17,6 +17,7 @@ dropoutを実装する→lossが増加する
 trainデータの中身を確認する
 
 #### 2024年6月27日
+
 バッチの擬似的拡張
 https://kozodoi.me/blog/20210219/gradient-accumulation
     for x, _ in train_dl:
@@ -24,19 +25,29 @@ https://kozodoi.me/blog/20210219/gradient-accumulation
         model.train()
         x = x.to(device)
 
-        rec_img, mask = model(x)
+    rec_img, mask = model(x)
         train_loss = torch.mean((rec_img - x) ** 2 * mask) / config["mask_ratio"]
         train_loss.backward()
 
-        if step_count % 8 == 0:  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
+    if step_count % 8 == 0:  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
             optimizer.step()
             optimizer.zero_grad()
 
-        total_train_loss += train_loss.item()
+    total_train_loss += train_loss.item()
 
 多分勾配消失を起こしているので修正する。
+
 - 異なるスケールでのロスを足し合わせる．
   - ベースラインモデルはUNet構造なので，デコーダーの中間層の出力は最終的な出力サイズの0.5,0.25,...倍になっています．各中間層の出力を用いてロスを計算することで，勾配消失を防ぎ，性能向上が見込めます．
 
 dataのpickle化によるロード短縮化
 https://hyper-pigeon.hatenablog.com/entry/2021/08/04/225814
+
+#### 2024/06/29
+
+勾配クリッピングは活用できる？DL第六回
+
+softmaxの勾配が小さくなるのを防ぐためで,Scaled Dot-Product
+Attentionと呼ばれる.
+
+GANによる画像生成　第10回

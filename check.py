@@ -109,33 +109,9 @@ test data:
     Key: seq_name, Type: list
     Key: event_volume, Type: torch.Tensor, Shape: torch.Size([Batch, 4, 480, 640]) => イベントデータのバッチ
 '''
-# ------------------
-#       Model
-# ------------------
-    model = EVFlowNet(args.train).to(device)
+    # ------------------
+    # データの中身を確認
+    # ------------------
+    print(train_data.shape)
+    print(test_data.shape)
 
-# ------------------
-#   Start predicting
-# ------------------
-    print("start predict")
-    current_time = time.strftime("%Y%m%d%H%M%S")
-    model_path = f"{PATH}/model_{current_time}.pth"
-    model.load_state_dict(torch.load(f'{PATH}/model_20240618091221', map_location=device))
-    model.eval()
-    flow: torch.Tensor = torch.tensor([]).to(device)
-    with torch.no_grad():
-        print("start test")
-        for batch in tqdm(test_data):
-            batch: Dict[str, Any]
-            event_image = batch["event_volume_old"].to(device)
-            batch_flow = model(event_image) # [1, 2, 480, 640]
-            flow = torch.cat((flow, batch_flow), dim=0)  # [N, 2, 480, 640]
-        print("test done")
-# ------------------
-#  save submission
-# ------------------
-    file_name = "submission.npy"
-    save_optical_flow_to_npy(flow, f'{PATH}/{file_name}')
-
-    if __name__ == "__main__":
-        main()
