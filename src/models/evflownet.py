@@ -76,16 +76,9 @@ class EVFlowNet(nn.Module):
         print(f'flow1_{shape1}')
         print(f'flow2_{shape2}')
         print(f'flow3_{shape3}')
-        # print(flow_dict.values())
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
+        # print(flow_dict.values())     
         flow = np.mean(flow_dict.values)
-=======
         # flow = np.mean(flow_dict.values)
->>>>>>> Stashed changes
-=======
-        # flow = np.mean(flow_dict.values)
->>>>>>> Stashed changes
         return flow
         
 
