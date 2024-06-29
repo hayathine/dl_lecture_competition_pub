@@ -51,6 +51,10 @@ class EVFlowNet(nn.Module):
         inputs = self.resnet_block(inputs)
 
         # decoder
+        # flow0_torch.Size([8, 2, 60, 80])
+        # flow1_torch.Size([8, 2, 120, 160])
+        # flow2_torch.Size([8, 2, 240, 320])
+        # flow3_torch.Size([8, 2, 480, 640])
         flow_dict = {}
         inputs = torch.cat([inputs, skip_connections['skip3']], dim=1)
         inputs, flow = self.decoder1(inputs)
@@ -68,14 +72,14 @@ class EVFlowNet(nn.Module):
         inputs, flow = self.decoder4(inputs)
         flow_dict['flow3'] = flow.clone()
         # 最後のflowだけを用いているflow_dictを活用する
-        shape0 = flow_dict['flow0'].shape
-        shape1 = flow_dict['flow1'].shape
-        shape2 = flow_dict['flow2'].shape
-        shape3 = flow_dict['flow3'].shape
-        print(f'flow0_{shape0}')
-        print(f'flow1_{shape1}')
-        print(f'flow2_{shape2}')
-        print(f'flow3_{shape3}')
+        # shape0 = flow_dict['flow0'].shape
+        # shape1 = flow_dict['flow1'].shape
+        # shape2 = flow_dict['flow2'].shape
+        # shape3 = flow_dict['flow3'].shape
+        # print(f'flow0_{shape0}')
+        # print(f'flow1_{shape1}')
+        # print(f'flow2_{shape2}')
+        # print(f'flow3_{shape3}')
         # print(flow_dict.values())
         # flow = np.mean(flow_dict.values)
         return flow
