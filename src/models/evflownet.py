@@ -77,7 +77,6 @@ class EVFlowNet(nn.Module):
         print(f'flow2_{shape2}')
         print(f'flow3_{shape3}')
         # print(flow_dict.values())     
-        flow = np.mean(flow_dict.values)
         # flow = np.mean(flow_dict.values)
         return flow
         
