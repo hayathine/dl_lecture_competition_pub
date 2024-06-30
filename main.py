@@ -156,7 +156,7 @@ def main(args: DictConfig):
     
     """
     current_time = get_time()
-    model_load_path = f"checkpoints/{LOAD_NAME}"
+    model_load_path = f"{LOAD_NAME}"
 
     if os.path.exists(model_load_path):
         model.load_state_dict(torch.load(model_load_path, map_location=device))
