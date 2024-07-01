@@ -72,7 +72,7 @@ def general_conv2d(in_channels,out_channels, ksize=3, strides=2, padding=1, do_b
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
                         stride=strides,padding=padding),
-                nn.BatchNorm2d(out_channels,eps=1e-5,momentum=0.99),
+                nn.LayerNorm2d(out_channels,eps=1e-5,momentum=0.99),
                 nn.ReLU(inplace=True),
                 nn.Dropout(p=dropout)
             )
@@ -80,7 +80,7 @@ def general_conv2d(in_channels,out_channels, ksize=3, strides=2, padding=1, do_b
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
                         stride=strides,padding=padding),
-                nn.BatchNorm2d(out_channels,eps=1e-5,momentum=0.99),
+                nn.LayerNorm2d(out_channels,eps=1e-5,momentum=0.99),
                 nn.ReLU(inplace=True),
                 nn.Dropout(p=dropout)
             )
@@ -89,7 +89,7 @@ def general_conv2d(in_channels,out_channels, ksize=3, strides=2, padding=1, do_b
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
                         stride=strides,padding=padding),
-                nn.BatchNorm2d(out_channels,eps=1e-5,momentum=0.99),
+                nn.LayerNorm2d(out_channels,eps=1e-5,momentum=0.99),
                 nn.Tanh(),
                 nn.Dropout(p=dropout)
             )
@@ -97,7 +97,7 @@ def general_conv2d(in_channels,out_channels, ksize=3, strides=2, padding=1, do_b
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
                         stride=strides,padding=padding),
-                nn.BatchNorm2d(out_channels,eps=1e-5,momentum=0.99),
+                nn.LayerNorm2d(out_channels,eps=1e-5,momentum=0.99),
                 nn.Tanh(),
                 nn.Dropout(p=dropout)
             )
