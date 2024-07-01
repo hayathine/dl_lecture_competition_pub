@@ -72,7 +72,7 @@ def general_conv2d(in_channels,out_channels, ksize=3, strides=2, padding=1, do_b
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
                         stride=strides,padding=padding),
-                nn.LayerNorm(out_channels),
+                nn.LayerNorm([out_channels,240,320]),
                 nn.ReLU(inplace=True),
                 nn.Dropout(p=dropout)
             )
@@ -80,7 +80,6 @@ def general_conv2d(in_channels,out_channels, ksize=3, strides=2, padding=1, do_b
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
                         stride=strides,padding=padding),
-                nn.LayerNorm(out_channels),
                 nn.ReLU(inplace=True),
                 nn.Dropout(p=dropout)
             )
@@ -97,7 +96,6 @@ def general_conv2d(in_channels,out_channels, ksize=3, strides=2, padding=1, do_b
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
                         stride=strides,padding=padding),
-                nn.LayerNorm(out_channels),
                 nn.Tanh(),
                 nn.Dropout(p=dropout)
             )
