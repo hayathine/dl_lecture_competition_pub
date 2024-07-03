@@ -11,6 +11,8 @@ class build_resnet_block(nn.Module):
         self._channels = channels
         self._layers = layers
 
+        self.conv2d = nn.Conv2d(in_channels=self._channels, out_channels=self._channels, kernel_size=3, stride=1, padding=1)
+
         self.res_block = nn.Sequential(*[general_conv2d(in_channels=self._channels,
                                             out_channels=self._channels,
                                             strides=1,
@@ -18,15 +20,20 @@ class build_resnet_block(nn.Module):
 
     def forward(self,input_res):
         inputs = input_res.clone()
-        input_res = self.res_block(input_res)
-        return input_res + inputs
+        for i in range(self._layers):
+            x = self.conv2d(inputs)
+            x = F.layer_norm(x, [input.shape[2],input.shape[3]])
+            x = F.relu(x)
+            x = F.dropout(x, p=0.0)
+
+        input = input + x
 
 # decorderで使用されている
 class upsample_conv2d_and_predict_flow(nn.Module):
     """
     an upsample convolution layer which includes a nearest interpolate and a general_conv2d
     """
-    def __init__(self, in_channels, out_channels, ksize=3, x_size=240, y_size=320, do_batch_norm=False, dropout=0):
+    def __init__(self, in_channels, out_channels, ksize=3,  do_batch_norm=False, dropout=0):
         super(upsample_conv2d_and_predict_flow, self).__init__()
         self._in_channels = in_channels
         self._out_channels = out_channels
