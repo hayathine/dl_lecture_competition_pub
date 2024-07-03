@@ -20,13 +20,13 @@ class build_resnet_block(nn.Module):
 
     def forward(self,input_res):
         inputs = input_res.clone()
-        for i in range(self._layers):
-            x = self.conv2d(inputs)
-            x = F.layer_norm(x, [input.shape[2],input.shape[3]])
-            x = F.relu(x)
-            x = F.dropout(x, p=0.0)
+        x = self.conv2d(inputs)
+        x = F.layer_norm(x, [inputs.shape[2],inputs.shape[3]])
+        x = F.relu(x)
+        x = F.dropout(x, p=0.0)
 
-        input = input + x
+        input = inputs + x
+        return input
 
 # decorderで使用されている
 class upsample_conv2d_and_predict_flow(nn.Module):
