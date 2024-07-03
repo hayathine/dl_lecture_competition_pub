@@ -56,8 +56,6 @@ class EVFlowNet(nn.Module):
             in_channels=16*_BASE_CHANNELS,
             out_channels=4*_BASE_CHANNELS, 
             do_batch_norm=not self._args.no_batch_norm,
-            x_size=30,
-            y_size=40,
             dropout=self._args.dropout
             )
 

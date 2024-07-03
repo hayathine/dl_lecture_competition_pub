@@ -25,18 +25,20 @@ class upsample_conv2d_and_predict_flow(nn.Module):
     """
     an upsample convolution layer which includes a nearest interpolate and a general_conv2d
     """
-    def __init__(self, in_channels, out_channels, ksize=3, do_batch_norm=False, dropout=0):
+    def __init__(self, in_channels, out_channels, ksize=3, x_size=240, y_size=320, do_batch_norm=False, dropout=0):
         super(upsample_conv2d_and_predict_flow, self).__init__()
         self._in_channels = in_channels
         self._out_channels = out_channels
         self._ksize = ksize
         self._do_batch_norm = do_batch_norm
         self._dropout = dropout
+        self._x_size = x_size
+        self._y_size = y_size
 
         self.general_conv2d = general_conv2d(in_channels=self._in_channels,
                                             out_channels=self._out_channels,
-                                            x_size=240,
-                                            y_size=320,
+                                            x_size=self._x_size,
+                                            y_size=self._y_size,
                                             ksize=self._ksize,
                                             strides=1,
                                             do_batch_norm=self._do_batch_norm,
@@ -49,8 +51,8 @@ class upsample_conv2d_and_predict_flow(nn.Module):
 
         self.predict_flow = general_conv2d(in_channels=self._out_channels,
                                             out_channels=2,
-                                            x_size=240,
-                                            y_size=320,
+                                            x_size=self._x_size,
+                                            y_size=self._y_size,
                                             ksize=1,
                                             strides=1,
                                             padding=0,
