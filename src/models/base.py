@@ -35,6 +35,8 @@ class upsample_conv2d_and_predict_flow(nn.Module):
 
         self.general_conv2d = general_conv2d(in_channels=self._in_channels,
                                             out_channels=self._out_channels,
+                                            x_size=240,
+                                            y_size=320,
                                             ksize=self._ksize,
                                             strides=1,
                                             do_batch_norm=self._do_batch_norm,
@@ -47,6 +49,8 @@ class upsample_conv2d_and_predict_flow(nn.Module):
 
         self.predict_flow = general_conv2d(in_channels=self._out_channels,
                                             out_channels=2,
+                                            x_size=240,
+                                            y_size=320,
                                             ksize=1,
                                             strides=1,
                                             padding=0,
@@ -63,7 +67,18 @@ class upsample_conv2d_and_predict_flow(nn.Module):
         return torch.cat([conv,flow.clone()], dim=1), flow
 
 # encoder,decorderで使用されている
-def general_conv2d(in_channels,out_channels, ksize=3, strides=2, padding=1, do_batch_norm=False, dropout=0, activation='relu'):
+def general_conv2d(
+        in_channels,
+        out_channels, 
+        ksize=3, 
+        strides=2, 
+        padding=1, 
+        do_batch_norm=False, 
+        x_size=240,
+        y_size=320,
+        dropout=0, 
+        activation='relu'
+        ):
     """
     a general convolution layer which includes a conv2d, a relu and a batch_normalize
     """
@@ -72,7 +87,7 @@ def general_conv2d(in_channels,out_channels, ksize=3, strides=2, padding=1, do_b
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
                         stride=strides,padding=padding),
-                nn.LayerNorm([out_channels,240,320]),
+                nn.LayerNorm([out_channels,x_size,y_size]),
                 nn.ReLU(inplace=True),
                 nn.Dropout(p=dropout)
             )

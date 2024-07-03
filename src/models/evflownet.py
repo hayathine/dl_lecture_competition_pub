@@ -16,12 +16,16 @@ class EVFlowNet(nn.Module):
             out_channels=_BASE_CHANNELS, 
             do_batch_norm=not self._args.no_batch_norm,
             dropout=self._args.dropout,
+            x_size=240,
+            y_size=320,
             activation='relu')
         self.encoder2 = general_conv2d(
             in_channels = _BASE_CHANNELS, 
             out_channels=2*_BASE_CHANNELS, 
             do_batch_norm=not self._args.no_batch_norm,
             dropout=self._args.dropout,
+            x_size=120,
+            y_size=160,
             activation='relu'
             )
         self.encoder3 = general_conv2d(
@@ -29,6 +33,8 @@ class EVFlowNet(nn.Module):
             out_channels=4*_BASE_CHANNELS, 
             do_batch_norm=not self._args.no_batch_norm,
             dropout=self._args.dropout,
+            x_size=60,
+            y_size=80,
             activation='relu'
             )
         self.encoder4 = general_conv2d(
@@ -36,6 +42,8 @@ class EVFlowNet(nn.Module):
             out_channels=8*_BASE_CHANNELS, 
             do_batch_norm=not self._args.no_batch_norm,
             dropout=self._args.dropout,
+            x_size=30,
+            y_size=40,
             activation='relu'
             )
 
@@ -48,6 +56,8 @@ class EVFlowNet(nn.Module):
             in_channels=16*_BASE_CHANNELS,
             out_channels=4*_BASE_CHANNELS, 
             do_batch_norm=not self._args.no_batch_norm,
+            x_size=30,
+            y_size=40,
             dropout=self._args.dropout
             )
 
