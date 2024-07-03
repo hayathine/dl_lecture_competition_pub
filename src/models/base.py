@@ -86,7 +86,7 @@ def general_conv2d(
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
                         stride=strides,padding=padding),
-                F.LayerNorm([out_channels,480 , 640]),
+                F.layer_norm([out_channels,480 , 640]),
                 nn.ReLU(inplace=True),
                 nn.Dropout(p=dropout)
             )
