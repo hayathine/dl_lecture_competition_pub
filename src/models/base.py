@@ -68,49 +68,49 @@ class upsample_conv2d_and_predict_flow(nn.Module):
         return torch.cat([conv,flow.clone()], dim=1), flow
 
 # encoder,decorderで使用されている
-# def general_conv2d(
-#         in_channels,
-#         out_channels, 
-#         ksize=3, 
-#         strides=2, 
-#         padding=1, 
-#         do_batch_norm=False, 
-#         dropout=0, 
-#         activation='relu'
-#         ):
-#     """
-#     a general convolution layer which includes a conv2d, a relu and a batch_normalize
-#     """
-#     if activation == 'relu':
-#         if do_batch_norm:
-#             conv2d = nn.Sequential(
-#                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
-#                         stride=strides,padding=padding),
-#                 nn.LayerNorm([out_channels,input.shape[2], input.shape[3]]),
-#                 nn.ReLU(inplace=True),
-#                 nn.Dropout(p=dropout)
-#             )
-#         else:
-#             conv2d = nn.Sequential(
-#                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
-#                         stride=strides,padding=padding),
-#                 nn.ReLU(inplace=True),
-#                 nn.Dropout(p=dropout)
-#             )
-#     elif activation == 'tanh':
-#         if do_batch_norm:
-#             conv2d = nn.Sequential(
-#                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
-#                         stride=strides,padding=padding),
-#                 nn.LayerNorm(out_channels),
-#                 nn.Tanh(),
-#                 nn.Dropout(p=dropout)
-#             )
-#         else:
-#             conv2d = nn.Sequential(
-#                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
-#                         stride=strides,padding=padding),
-#                 nn.Tanh(),
-#                 nn.Dropout(p=dropout)
-#             )
-#     return conv2d
+def general_conv2d(
+        in_channels,
+        out_channels, 
+        ksize=3, 
+        strides=2, 
+        padding=1, 
+        do_batch_norm=False, 
+        dropout=0, 
+        activation='relu'
+        ):
+    """
+    a general convolution layer which includes a conv2d, a relu and a batch_normalize
+    """
+    if activation == 'relu':
+        if do_batch_norm:
+            conv2d = nn.Sequential(
+                nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
+                        stride=strides,padding=padding),
+                F.LayerNorm([out_channels,480 , 640]),
+                nn.ReLU(inplace=True),
+                nn.Dropout(p=dropout)
+            )
+        else:
+            conv2d = nn.Sequential(
+                nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
+                        stride=strides,padding=padding),
+                nn.ReLU(inplace=True),
+                nn.Dropout(p=dropout)
+            )
+    elif activation == 'tanh':
+        if do_batch_norm:
+            conv2d = nn.Sequential(
+                nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
+                        stride=strides,padding=padding),
+                F.LayerNorm([out_channels, 480, 640]),
+                nn.Tanh(),
+                nn.Dropout(p=dropout)
+            )
+        else:
+            conv2d = nn.Sequential(
+                nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
+                        stride=strides,padding=padding),
+                nn.Tanh(),
+                nn.Dropout(p=dropout)
+            )
+    return conv2d
