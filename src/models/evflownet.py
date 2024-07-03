@@ -11,41 +11,12 @@ class EVFlowNet(nn.Module):
         super(EVFlowNet,self).__init__()
         self._args = args
 
-        self.encoder1 = general_conv2d(
-            in_channels = 4, 
-            out_channels=_BASE_CHANNELS, 
-            do_batch_norm=not self._args.no_batch_norm,
-            dropout=self._args.dropout,
-            x_size=240,
-            y_size=320,
-            activation='relu')
-        self.encoder2 = general_conv2d(
-            in_channels = _BASE_CHANNELS, 
-            out_channels=2*_BASE_CHANNELS, 
-            do_batch_norm=not self._args.no_batch_norm,
-            dropout=self._args.dropout,
-            x_size=120,
-            y_size=160,
-            activation='relu'
-            )
-        self.encoder3 = general_conv2d(
-            in_channels = 2*_BASE_CHANNELS, 
-            out_channels=4*_BASE_CHANNELS, 
-            do_batch_norm=not self._args.no_batch_norm,
-            dropout=self._args.dropout,
-            x_size=60,
-            y_size=80,
-            activation='relu'
-            )
-        self.encoder4 = general_conv2d(
-            in_channels = 4*_BASE_CHANNELS, 
-            out_channels=8*_BASE_CHANNELS, 
-            do_batch_norm=not self._args.no_batch_norm,
-            dropout=self._args.dropout,
-            x_size=30,
-            y_size=40,
-            activation='relu'
-            )
+        self.encoder1 = nn.Conv2d(4, _BASE_CHANNELS , kernel_size=3, stride=2, padding=1)
+
+        
+        self.encoder2 = nn.Conv2d(_BASE_CHANNELS, 2*_BASE_CHANNELS, kernel_size=3, stride=2, padding=1)
+        self.encoder3 = nn.Conv2d(2*_BASE_CHANNELS, 4*_BASE_CHANNELS, kernel_size=3, stride=2, padding=1)
+        self.encoder4 = nn.Conv2d(4*_BASE_CHANNELS, 8*_BASE_CHANNELS, kernel_size=3, stride=2, padding=1)
 
         self.resnet_block = nn.Sequential(*[build_resnet_block(
                                             8*_BASE_CHANNELS, 
@@ -97,10 +68,12 @@ class EVFlowNet(nn.Module):
         inputs = self.resnet_block(inputs)
 
         # decoder
-        # flow0_torch.Size([8, 2, 60, 80])
-        # flow1_torch.Size([8, 2, 120, 160])
-        # flow2_torch.Size([8, 2, 240, 320])
-        # flow3_torch.Size([8, 2, 480, 640])
+        """
+        flow0_torch.Size([8, 2, 60, 80])
+        flow1_torch.Size([8, 2, 120, 160])
+        flow2_torch.Size([8, 2, 240, 320])
+        flow3_torch.Size([8, 2, 480, 640])
+        """
         flow_dict = {}
         inputs = torch.cat([inputs, skip_connections['skip3']], dim=1)
         inputs, flow = self.decoder1(inputs)

@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+from torch import functional as F   
 # transitionで使用されている
 class build_resnet_block(nn.Module):
     """
@@ -32,40 +33,31 @@ class upsample_conv2d_and_predict_flow(nn.Module):
         self._ksize = ksize
         self._do_batch_norm = do_batch_norm
         self._dropout = dropout
-        self._x_size = x_size
-        self._y_size = y_size
 
-        self.general_conv2d = general_conv2d(in_channels=self._in_channels,
-                                            out_channels=self._out_channels,
-                                            x_size=self._x_size,
-                                            y_size=self._y_size,
-                                            ksize=self._ksize,
-                                            strides=1,
-                                            do_batch_norm=self._do_batch_norm,
-                                            padding=0,
-                                            dropout=self._dropout
-                                            )
-        
+        # conv2d, layer_norm, relu, dropout
+        self.conv2d = nn.Conv2d(in_channels=self._in_channels, out_channels=self._out_channels, kernel_size=self._ksize, stride=2, padding=1)
+
         self.pad = nn.ReflectionPad2d(padding=(int((self._ksize-1)/2), int((self._ksize-1)/2),
                                         int((self._ksize-1)/2), int((self._ksize-1)/2)))
-
-        self.predict_flow = general_conv2d(in_channels=self._out_channels,
-                                            out_channels=2,
-                                            x_size=self._x_size,
-                                            y_size=self._y_size,
-                                            ksize=1,
-                                            strides=1,
-                                            padding=0,
-                                            activation='tanh')
 
     def forward(self, conv):
         shape = conv.shape
         conv = nn.functional.interpolate(conv,size=[shape[2]*2,shape[3]*2],mode='nearest')
         conv = self.pad(conv)
-        conv = self.general_conv2d(conv)
 
-        flow = self.predict_flow(conv) * 256.
-        
+        # conv2d, layer_norm, relu, dropout
+        conv = self.conv2d(conv)
+        conv = F.layer_norm(conv, [conv.shape[2],conv.shape[3]])
+        conv = F.relu(conv)
+        conv = F.dropout(conv, p=self._dropout)
+
+        # conv2d, layer_norm, tanh, dropout
+        flow = self.conv2d(conv)
+        flow = F.layer_norm(flow, [flow.shape[2],flow.shape[3]])
+        flow = F.tanh(flow)
+        flow = F.dropout(flow, p=self._dropout)
+        flow = flow * 256
+
         return torch.cat([conv,flow.clone()], dim=1), flow
 
 # encoder,decorderで使用されている
@@ -76,8 +68,6 @@ def general_conv2d(
         strides=2, 
         padding=1, 
         do_batch_norm=False, 
-        x_size=240,
-        y_size=320,
         dropout=0, 
         activation='relu'
         ):
