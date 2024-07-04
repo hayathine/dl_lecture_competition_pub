@@ -42,7 +42,8 @@ class upsample_conv2d_and_predict_flow(nn.Module):
         self._dropout = dropout
 
         # conv2d, layer_norm, relu, dropout
-        self.conv2d = nn.Conv2d(in_channels=self._in_channels, out_channels=self._out_channels, kernel_size=self._ksize, stride=2, padding=1)
+        self.conv2d = nn.Conv2d(in_channels=self._in_channels, out_channels=self._out_channels, 
+                                kernel_size=self._ksize, stride=1, padding=1)
 
         self.pad = nn.ReflectionPad2d(padding=(int((self._ksize-1)/2), int((self._ksize-1)/2),
                                         int((self._ksize-1)/2), int((self._ksize-1)/2)))
