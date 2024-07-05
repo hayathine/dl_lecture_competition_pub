@@ -164,12 +164,14 @@ def main(args: DictConfig):
     else:
         print("First training model")
     model.train()
+    step_count = 0
     for epoch in range(args.train.epochs):
         model_save_path = f'checkpoints/{current_time}_{epoch}_{SAVE_NAME}'
         total_loss = 0
-        step_count = 0
         # print(f"Epoch {epoch+1} start")
         for i, batch in enumerate(tqdm(train_data)):
+            optimizer.zero_grad()
+            step_count += 1
             batch: Dict[str, Any]
             event_image = batch["event_volume"].to(device) # [B, 4, 480, 640]
             ground_truth_flow = batch["flow_gt"].to(device) # [B, 2, 480, 640]
@@ -179,7 +181,6 @@ def main(args: DictConfig):
             if step_count % 16 == 0:  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
                 optimizer.step()
                 optimizer.zero_grad()
-            step_count += 1
             total_loss += loss.item()
 
 
