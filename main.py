@@ -170,7 +170,6 @@ def main(args: DictConfig):
         total_loss = 0
         # print(f"Epoch {epoch+1} start")
         for i, batch in enumerate(tqdm(train_data)):
-            optimizer.zero_grad()
             step_count += 1
             batch: Dict[str, Any]
             event_image = batch["event_volume"].to(device) # [B, 4, 480, 640]
