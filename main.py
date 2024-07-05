@@ -170,6 +170,7 @@ def main(args: DictConfig):
         total_loss = 0
         # print(f"Epoch {epoch+1} start")
         for i, batch in enumerate(tqdm(train_data)):
+            optimizer.zero_grad()
             step_count += 1
             batch: Dict[str, Any]
             event_image = batch["event_volume"].to(device) # [B, 4, 480, 640]
@@ -177,9 +178,10 @@ def main(args: DictConfig):
             flow = model(event_image) # [B, 2, 480, 640]
             loss: torch.Tensor = compute_epe_error(flow, ground_truth_flow)
             loss.backward()
-            if step_count % 16 == 0:  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
-                optimizer.step()
-                optimizer.zero_grad()
+            optimizer.step()
+            # if step_count % 16 == 0:  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
+            #     optimizer.step()
+            #     optimizer.zero_grad()
             total_loss += loss.item()
 
 
