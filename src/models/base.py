@@ -12,7 +12,6 @@ class build_resnet_block(nn.Module):
         self._layers = layers
         self.height = height
         self.width = width
-        self.con
 
         self.res_block = nn.Sequential(*[general_conv2d(in_channels=self._channels,
                                             out_channels=self._channels,
