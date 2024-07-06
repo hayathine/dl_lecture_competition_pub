@@ -15,7 +15,7 @@ class build_resnet_block(nn.Module):
 
         self.res_block = nn.Sequential(*[general_conv2d(in_channels=self._channels,
                                             out_channels=self._channels,
-                                            strides=1,
+                                            stride=1,
                                             do_batch_norm=do_batch_norm) for i in range(self._layers)])
 
     def forward(self,input_res):
@@ -53,7 +53,7 @@ class upsample_conv2d_and_predict_flow(nn.Module):
         self.predict_flow = general_conv2d(in_channels=self._out_channels,
                                             out_channels=2,
                                             ksize=1,
-                                            strides=1,
+                                            stride=1,
                                             padding=0,
                                             activation='tanh')
 
@@ -83,7 +83,7 @@ def general_conv2d(
         in_channels,
         out_channels, 
         ksize=3, 
-        strides=2, 
+        stride=2, 
         padding=1, 
         height=480,
         width=640,
@@ -98,7 +98,7 @@ def general_conv2d(
         if do_batch_norm:
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
-                        stride=strides,padding=padding),
+                        stride=stride,padding=padding),
                 F.layer_norm(out_channels,[2, height , width]),
                 nn.ReLU(inplace=True),
                 nn.Dropout(p=dropout)
@@ -106,7 +106,7 @@ def general_conv2d(
         else:
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
-                        stride=strides,padding=padding),
+                        stride=stride,padding=padding),
                 # nn.LayerNorm(out_channels,eps=1e-5,momentum=0.99),
                 nn.ReLU(inplace=True),
                 nn.Dropout(p=dropout)
@@ -115,7 +115,7 @@ def general_conv2d(
         if do_batch_norm:
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
-                        stride=strides,padding=padding),
+                        stride=stride,padding=padding),
                 F.layer_norm(out_channels,[2, height , width]),
                 nn.Tanh(),
                 nn.Dropout(p=dropout)
@@ -123,7 +123,7 @@ def general_conv2d(
         else:
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
-                        stride=strides,padding=padding),
+                        stride=stride,padding=padding),
                 # nn.LayerNorm(out_channels,eps=1e-5,momentum=0.99),
                 nn.Tanh(),
                 nn.Dropout(p=dropout)
