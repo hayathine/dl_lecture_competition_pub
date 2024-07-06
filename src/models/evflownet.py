@@ -35,8 +35,8 @@ class EVFlowNet(nn.Module):
         self.encoder3 = general_conv2d(
                                     2*_BASE_CHANNELS, 
                                     4*_BASE_CHANNELS, 
-                                    kernel_size=3, 
-                                    ksize=2, 
+                                    ksize=3, 
+                                    stride=2, 
                                     height=self.height/4,
                                     width=self.width/4,
                                     padding=1)
