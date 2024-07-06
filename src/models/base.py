@@ -33,11 +33,11 @@ class upsample_conv2d_and_predict_flow(nn.Module):
     """
     an upsample convolution layer which includes a nearest interpolate and a general_conv2d
     """
-    def __init__(self, in_channels, out_channels, ksize=3, height=480, width=640 , do_batch_norm=False, dropout=0):
+    def __init__(self, in_channels, out_channels, kernel_size=3, height=480, width=640 , do_batch_norm=False, dropout=0):
         super(upsample_conv2d_and_predict_flow, self).__init__()
         self._in_channels = in_channels
         self._out_channels = out_channels
-        self._ksize = ksize
+        self._kernel_size = kernel_size
         self.heihgt = height
         self.width = width
         self._do_batch_norm = do_batch_norm
@@ -45,14 +45,14 @@ class upsample_conv2d_and_predict_flow(nn.Module):
 
         # conv2d, layer_norm, relu, dropout
         self.conv2d = general_conv2d(in_channels=self._in_channels, out_channels=self._out_channels, 
-                                kernel_size=self._ksize, stride=1, padding=1)
+                                kernel_size=self._kernel_size, stride=1, padding=1)
 
-        self.pad = nn.ReflectionPad2d(padding=(int((self._ksize-1)/2), int((self._ksize-1)/2),
-                                        int((self._ksize-1)/2), int((self._ksize-1)/2)))
+        self.pad = nn.ReflectionPad2d(padding=(int((self._kernel_size-1)/2), int((self._kernel_size-1)/2),
+                                        int((self._kernel_size-1)/2), int((self._kernel_size-1)/2)))
 
         self.predict_flow = general_conv2d(in_channels=self._out_channels,
                                             out_channels=2,
-                                            ksize=1,
+                                            kernel_size=1,
                                             stride=1,
                                             padding=0,
                                             activation='tanh')
@@ -82,7 +82,7 @@ class upsample_conv2d_and_predict_flow(nn.Module):
 def general_conv2d(
         in_channels,
         out_channels, 
-        ksize=3, 
+        kernel_size=3, 
         stride=2, 
         padding=1, 
         height=480,
@@ -97,7 +97,7 @@ def general_conv2d(
     if activation == 'relu':
         if do_batch_norm:
             conv2d = nn.Sequential(
-                nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
+                nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = kernel_size,
                         stride=stride,padding=padding),
                 nn.LayerNorm(out_channels,[2, height , width]),
                 nn.ReLU(inplace=True),
@@ -105,7 +105,7 @@ def general_conv2d(
             )
         else:
             conv2d = nn.Sequential(
-                nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
+                nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = kernel_size,
                         stride=stride,padding=padding),
                 # nn.LayerNorm(out_channels,eps=1e-5,momentum=0.99),
                 nn.ReLU(inplace=True),
@@ -114,7 +114,7 @@ def general_conv2d(
     elif activation == 'tanh':
         if do_batch_norm:
             conv2d = nn.Sequential(
-                nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
+                nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = kernel_size,
                         stride=stride,padding=padding),
                 nn.LayerNorm(out_channels,[2, height , width]),
                 nn.Tanh(),
@@ -122,7 +122,7 @@ def general_conv2d(
             )
         else:
             conv2d = nn.Sequential(
-                nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
+                nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = kernel_size,
                         stride=stride,padding=padding),
                 # nn.LayerNorm(out_channels,eps=1e-5,momentum=0.99),
                 nn.Tanh(),

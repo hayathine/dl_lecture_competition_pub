@@ -16,7 +16,7 @@ class EVFlowNet(nn.Module):
         self.encoder1 = general_conv2d(
                                     4, 
                                     _BASE_CHANNELS ,
-                                    ksize=3, 
+                                    kernel_size=3, 
                                     stride=2, 
                                     height=self.height,
                                     width=self.width,
@@ -26,7 +26,7 @@ class EVFlowNet(nn.Module):
         self.encoder2 = general_conv2d(
                                     _BASE_CHANNELS, 
                                     2*_BASE_CHANNELS, 
-                                    ksize=3, 
+                                    kernel_size=3, 
                                     stride=2, 
                                     height=self.height/2,
                                     width=self.width/2,
@@ -35,7 +35,7 @@ class EVFlowNet(nn.Module):
         self.encoder3 = general_conv2d(
                                     2*_BASE_CHANNELS, 
                                     4*_BASE_CHANNELS, 
-                                    ksize=3, 
+                                    kernel_size=3, 
                                     stride=2, 
                                     height=self.height/4,
                                     width=self.width/4,
@@ -44,7 +44,7 @@ class EVFlowNet(nn.Module):
         self.encoder4 = general_conv2d(
                                     4*_BASE_CHANNELS, 
                                     8*_BASE_CHANNELS, 
-                                    ksize=3, 
+                                    kernel_size=3, 
                                     height=self.height/8,
                                     width=self.width/8,
                                     stride=2, 
