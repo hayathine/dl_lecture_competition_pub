@@ -10,16 +10,50 @@ class EVFlowNet(nn.Module):
     def __init__(self, args):
         super(EVFlowNet,self).__init__()
         self._args = args
+        self.height = 480
+        self.width = 640
 
-        self.encoder1 = general_conv2d(in_channels = 4, out_channels=_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
-        self.encoder2 = general_conv2d(in_channels = _BASE_CHANNELS, out_channels=2*_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
-        self.encoder3 = general_conv2d(in_channels = 2*_BASE_CHANNELS, out_channels=4*_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
-        self.encoder4 = general_conv2d(in_channels = 4*_BASE_CHANNELS, out_channels=8*_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
+        self.encoder1 = general_conv2d(
+                                    4, 
+                                    _BASE_CHANNELS ,
+                                    kernel_size=3, 
+                                    stride=2, 
+                                    height=self.height,
+                                    width=self.width,
+                                    padding=1
+                                    )
+        
+        self.encoder2 = general_conv2d(
+                                    _BASE_CHANNELS, 
+                                    2*_BASE_CHANNELS, 
+                                    kernel_size=3, 
+                                    stride=2, 
+                                    height=self.height/2,
+                                    width=self.width/2,
+                                    padding=1)
+        
+        self.encoder3 = general_conv2d(
+                                    2*_BASE_CHANNELS, 
+                                    4*_BASE_CHANNELS, 
+                                    kernel_size=3, 
+                                    stride=2, 
+                                    height=self.height/4,
+                                    width=self.width/4,
+                                    padding=1)
+        
+        self.encoder4 = general_conv2d(
+                                    4*_BASE_CHANNELS, 
+                                    8*_BASE_CHANNELS, 
+                                    kernel_size=3, 
+                                    height=self.height/8,
+                                    width=self.width/8,
+                                    stride=2, 
+                                    padding=1)
 
         self.resnet_block = nn.Sequential(*[build_resnet_block(
                                             8*_BASE_CHANNELS, 
-                                            do_batch_norm=not self._args.no_batch_norm) for i in range(2)]
-                                            )
+                                            do_batch_norm=not self._args.no_batch_norm
+                                            ) for i in range(2)])
 
         self.decoder1 = upsample_conv2d_and_predict_flow(in_channels=16*_BASE_CHANNELS,
                         out_channels=4*_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
@@ -38,12 +72,16 @@ class EVFlowNet(nn.Module):
     def forward(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
         # encoder
         skip_connections = {}
+        # torch.size([8, 2, 480, 640])
         inputs = self.encoder1(inputs)
         skip_connections['skip0'] = inputs.clone()
+        # torch.size([8, 2, 240, 320])
         inputs = self.encoder2(inputs)
         skip_connections['skip1'] = inputs.clone()
+        # torch.size([8, 2, 120, 160])
         inputs = self.encoder3(inputs)
         skip_connections['skip2'] = inputs.clone()
+        # torch.size([8, 2, 60, 80])
         inputs = self.encoder4(inputs)
         skip_connections['skip3'] = inputs.clone()
 
@@ -72,16 +110,6 @@ class EVFlowNet(nn.Module):
         inputs, flow = self.decoder4(inputs)
         flow_dict['flow3'] = flow.clone()
         # 最後のflowだけを用いているflow_dictを活用する
-        # shape0 = flow_dict['flow0'].shape
-        # shape1 = flow_dict['flow1'].shape
-        # shape2 = flow_dict['flow2'].shape
-        # shape3 = flow_dict['flow3'].shape
-        # print(f'flow0_{shape0}')
-        # print(f'flow1_{shape1}')
-        # print(f'flow2_{shape2}')
-        # print(f'flow3_{shape3}')
-        # print(flow_dict.values())
-        # flow = np.mean(flow_dict.values)
         return flow
         
 

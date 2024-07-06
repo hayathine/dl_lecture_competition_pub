@@ -5,10 +5,12 @@ class build_resnet_block(nn.Module):
     """
     a resnet block which includes two general_conv2d
     """
-    def __init__(self, channels, layers=2, do_batch_norm=False):
+    def __init__(self, channels, layers=2, do_batch_norm=False, height=None, width=None):
         super(build_resnet_block,self).__init__()
         self._channels = channels
         self._layers = layers
+        self.height = height
+        self.width = width
 
         self.res_block = nn.Sequential(*[general_conv2d(in_channels=self._channels,
                                             out_channels=self._channels,
@@ -17,22 +19,39 @@ class build_resnet_block(nn.Module):
 
     def forward(self,input_res):
         inputs = input_res.clone()
+<<<<<<< Updated upstream
         input_res = self.res_block(input_res)
         return input_res + inputs
+=======
+        x = self.conv2d(inputs)
+        x = F.layer_norm(x, [2, self.height,self.width])
+        x = F.relu(x)
+        x = F.dropout(x, p=0.0)
+
+        input = inputs + x
+        return input
+>>>>>>> Stashed changes
 
 # decorderで使用されている
 class upsample_conv2d_and_predict_flow(nn.Module):
     """
     an upsample convolution layer which includes a nearest interpolate and a general_conv2d
     """
+<<<<<<< Updated upstream
     def __init__(self, in_channels, out_channels, ksize=3, do_batch_norm=False, dropout=0):
+=======
+    def __init__(self, in_channels, out_channels, ksize=3, height=480, width=640 , do_batch_norm=False, dropout=0):
+>>>>>>> Stashed changes
         super(upsample_conv2d_and_predict_flow, self).__init__()
         self._in_channels = in_channels
         self._out_channels = out_channels
         self._ksize = ksize
+        self.heihgt = height
+        self.width = width
         self._do_batch_norm = do_batch_norm
         self._dropout = dropout
 
+<<<<<<< Updated upstream
         self.general_conv2d = general_conv2d(in_channels=self._in_channels,
                                             out_channels=self._out_channels,
                                             ksize=self._ksize,
@@ -42,6 +61,12 @@ class upsample_conv2d_and_predict_flow(nn.Module):
                                             dropout=self._dropout
                                             )
         
+=======
+        # conv2d, layer_norm, relu, dropout
+        self.conv2d = general_conv2d(in_channels=self._in_channels, out_channels=self._out_channels, 
+                                kernel_size=self._ksize, stride=1, padding=1)
+
+>>>>>>> Stashed changes
         self.pad = nn.ReflectionPad2d(padding=(int((self._ksize-1)/2), int((self._ksize-1)/2),
                                         int((self._ksize-1)/2), int((self._ksize-1)/2)))
 
@@ -58,12 +83,43 @@ class upsample_conv2d_and_predict_flow(nn.Module):
         conv = self.pad(conv)
         conv = self.general_conv2d(conv)
 
+<<<<<<< Updated upstream
         flow = self.predict_flow(conv) * 256.
         
         return torch.cat([conv,flow.clone()], dim=1), flow
 
 # encoder,decorderで使用されている
 def general_conv2d(in_channels,out_channels, ksize=3, strides=2, padding=1, do_batch_norm=False, dropout=0, activation='relu'):
+=======
+        # conv2d, layer_norm, relu, dropout
+        conv = self.conv2d(conv)
+        conv = F.layer_norm(conv, [2, self.height,self.width])
+        conv = F.relu(conv)
+        conv = F.dropout(conv, p=self._dropout)
+
+        # conv2d, layer_norm, tanh, dropout
+        flow = self.conv2d(conv)
+        flow = F.layer_norm(flow, [2, self.height,self.width])
+        flow = F.tanh(flow)
+        flow = F.dropout(flow, p=self._dropout)
+        flow = flow * 256
+
+        return torch.cat([conv,flow.clone()], dim=1), flow
+
+# encoder,decorderで使用されている
+def general_conv2d(
+        in_channels,
+        out_channels, 
+        ksize=3, 
+        strides=2, 
+        padding=1, 
+        height=480,
+        width=640,
+        do_batch_norm=False, 
+        dropout=0, 
+        activation='relu'
+        ):
+>>>>>>> Stashed changes
     """
     a general convolution layer which includes a conv2d, a relu and a batch_normalize
     """
@@ -72,7 +128,11 @@ def general_conv2d(in_channels,out_channels, ksize=3, strides=2, padding=1, do_b
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
                         stride=strides,padding=padding),
+<<<<<<< Updated upstream
                 # nn.LayerNorm(out_channels,eps=1e-5,momentum=0.99),
+=======
+                F.layer_norm(out_channels,[2, height , width]),
+>>>>>>> Stashed changes
                 nn.ReLU(inplace=True),
                 nn.Dropout(p=dropout)
             )
@@ -89,7 +149,11 @@ def general_conv2d(in_channels,out_channels, ksize=3, strides=2, padding=1, do_b
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = ksize,
                         stride=strides,padding=padding),
+<<<<<<< Updated upstream
                 # nn.LayerNorm(out_channels,eps=1e-5,momentum=0.99),
+=======
+                F.layer_norm(out_channels,[2, height , width]),
+>>>>>>> Stashed changes
                 nn.Tanh(),
                 nn.Dropout(p=dropout)
             )
