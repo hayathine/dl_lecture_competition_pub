@@ -12,6 +12,7 @@ class build_resnet_block(nn.Module):
         self._layers = layers
         self.height = height
         self.width = width
+        self.con
 
         self.res_block = nn.Sequential(*[general_conv2d(in_channels=self._channels,
                                             out_channels=self._channels,
@@ -20,7 +21,7 @@ class build_resnet_block(nn.Module):
 
     def forward(self,input_res):
         inputs = input_res.clone()
-        x = self.conv2d(inputs)
+        x = self.res_block(inputs)
         x = F.layer_norm(x, [2, self.height,self.width])
         x = F.relu(x)
         x = F.dropout(x, p=0.0)
