@@ -5,21 +5,21 @@ from typing import Dict, Any
 import numpy as np
 
 _BASE_CHANNELS = 64
+HEIGHT = 480
+WIDTH = 640
 
 class EVFlowNet(nn.Module):
     def __init__(self, args):
         super(EVFlowNet,self).__init__()
         self._args = args
-        self.height = 480
-        self.width = 640
 
         self.encoder1 = general_conv2d(
                                     4, 
                                     _BASE_CHANNELS ,
                                     kernel_size=3, 
                                     stride=2, 
-                                    height=self.height,
-                                    width=self.width,
+                                    height=HEIGHT,
+                                    width=WIDTH,
                                     padding=1
                                     )
         
@@ -28,8 +28,8 @@ class EVFlowNet(nn.Module):
                                     2*_BASE_CHANNELS, 
                                     kernel_size=3, 
                                     stride=2, 
-                                    height=self.height/2,
-                                    width=self.width/2,
+                                    height=HEIGHT/2,
+                                    width=WIDTH/2,
                                     padding=1)
         
         self.encoder3 = general_conv2d(
@@ -37,24 +37,24 @@ class EVFlowNet(nn.Module):
                                     4*_BASE_CHANNELS, 
                                     kernel_size=3, 
                                     stride=2, 
-                                    height=self.height/4,
-                                    width=self.width/4,
+                                    height=HEIGHT/4,
+                                    width=WIDTH/4,
                                     padding=1)
         
         self.encoder4 = general_conv2d(
                                     4*_BASE_CHANNELS, 
                                     8*_BASE_CHANNELS, 
                                     kernel_size=3, 
-                                    height=self.height/8,
-                                    width=self.width/8,
+                                    height=HEIGHT/8,
+                                    width=WIDTH/8,
                                     stride=2, 
                                     padding=1)
 
         self.resnet_block = nn.Sequential(*[build_resnet_block(
                                             8*_BASE_CHANNELS, 
                                             do_batch_norm=not self._args.no_batch_norm,
-                                            height=self.height/8,
-                                            width=self.width/8,
+                                            height=HEIGHT/8,
+                                            width=WIDTH/8
                                             ) for i in range(2)])
 
         self.decoder1 = upsample_conv2d_and_predict_flow(in_channels=16*_BASE_CHANNELS,

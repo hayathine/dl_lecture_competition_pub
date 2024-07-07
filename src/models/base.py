@@ -12,7 +12,7 @@ class build_resnet_block(nn.Module):
         self._layers = layers
         self.height = height
         self.width = width
-        self,image_shape = torch.empty((channels, height, width), dtype=torch.int64),
+        self,image_shape = torch.empty((512,60,80), dtype=torch.int64),
 
         self.res_block = nn.Sequential(*[general_conv2d(in_channels=self._channels,
                                             out_channels=self._channels,
