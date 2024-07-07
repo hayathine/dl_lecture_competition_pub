@@ -6,7 +6,7 @@ class build_resnet_block(nn.Module):
     """
     a resnet block which includes two general_conv2d
     """
-    def __init__(self, channels, layers=2, do_batch_norm=False, height=None, width=None):
+    def __init__(self, channels, layers=2, do_batch_norm=False, height=480, width=640):
         super(build_resnet_block,self).__init__()
         self._channels = channels
         self._layers = layers
@@ -105,7 +105,7 @@ def general_conv2d(
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = kernel_size,
                         stride=stride,padding=padding),
-                nn.LayerNorm(image_shape),
+                nn.LayerNorm([out_channels, height, width]),
                 nn.ReLU(inplace=True),
                 nn.Dropout(p=dropout)
             )
@@ -122,7 +122,7 @@ def general_conv2d(
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = kernel_size,
                         stride=stride,padding=padding),
-                nn.LayerNorm((out_channels, height , width)),
+                nn.LayerNorm([out_channels, height , width]),
                 nn.Tanh(),
                 nn.Dropout(p=dropout)
             )
