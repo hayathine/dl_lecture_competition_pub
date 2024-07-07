@@ -12,14 +12,12 @@ class build_resnet_block(nn.Module):
         self._layers = layers
         self.height = height
         self.width = width
-        self.image_shape = torch.empty(channels, height, width)
 
         self.res_block = nn.Sequential(*[general_conv2d(in_channels=self._channels,
                                             out_channels=self._channels,
                                             stride=1,
                                             height=self.height,
                                             width=self.width,
-                                            image_shape=self.image_shape,
                                             do_batch_norm=do_batch_norm) for i in range(self._layers)])
 
     def forward(self,input_res):
@@ -46,7 +44,6 @@ class upsample_conv2d_and_predict_flow(nn.Module):
         self.width = width
         self._do_batch_norm = do_batch_norm
         self._dropout = dropout
-        self.image_shape = torch.empty(out_channels, height, width)
 
         # conv2d, layer_norm, relu, dropout
         self.conv2d = general_conv2d(in_channels=self._in_channels, out_channels=self._out_channels, 
