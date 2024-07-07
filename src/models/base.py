@@ -16,6 +16,8 @@ class build_resnet_block(nn.Module):
         self.res_block = nn.Sequential(*[general_conv2d(in_channels=self._channels,
                                             out_channels=self._channels,
                                             stride=1,
+                                            height=self.height,
+                                            width=self.width,
                                             do_batch_norm=do_batch_norm) for i in range(self._layers)])
 
     def forward(self,input_res):
