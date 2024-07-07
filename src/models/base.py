@@ -40,8 +40,8 @@ class upsample_conv2d_and_predict_flow(nn.Module):
         self._in_channels = in_channels
         self._out_channels = out_channels
         self._kernel_size = kernel_size
-        self.heihgt = height
-        self.width = width
+        self.heihgt = int(height)
+        self.width = int(width)
         self._do_batch_norm = do_batch_norm
         self._dropout = dropout
 
@@ -102,7 +102,7 @@ def general_conv2d(
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = kernel_size,
                         stride=stride,padding=padding),
-                nn.LayerNorm([out_channels, height, width]),
+                nn.LayerNorm((out_channels, height, width)),
                 nn.ReLU(inplace=True),
                 nn.Dropout(p=dropout)
             )
@@ -119,7 +119,7 @@ def general_conv2d(
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = kernel_size,
                         stride=stride,padding=padding),
-                nn.LayerNorm([out_channels, height , width]),
+                nn.LayerNorm((out_channels, height , width)),
                 nn.Tanh(),
                 nn.Dropout(p=dropout)
             )
