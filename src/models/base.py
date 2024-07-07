@@ -23,7 +23,7 @@ class build_resnet_block(nn.Module):
     def forward(self,input_res):
         inputs = input_res.clone()
         x = self.res_block(inputs)
-        # x = F.layer_norm(input=x, normalized_shape=[2, self.height,self.width])
+        # x = F.layer_norm(x, normalized_shape=[2, self.height,self.width])
         x = F.relu(x)
         x = F.dropout(x, p=0.0)
 
@@ -101,7 +101,7 @@ def general_conv2d(
             conv2d = nn.Sequential(
                 nn.Conv2d(in_channels = in_channels,out_channels = out_channels,kernel_size = kernel_size,
                         stride=stride,padding=padding),
-                nn.LayerNorm(out_channels,[2, height , width]),
+                nn.LayerNorm([out_channels,2, height , width]),
                 nn.ReLU(inplace=True),
                 nn.Dropout(p=dropout)
             )
