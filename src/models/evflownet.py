@@ -53,8 +53,8 @@ class EVFlowNet(nn.Module):
         self.resnet_block = nn.Sequential(*[build_resnet_block(
                                             8*_BASE_CHANNELS, 
                                             do_batch_norm=not self._args.no_batch_norm,
-                                            height=HEIGHT/8,
-                                            width=WIDTH/8
+                                            height=HEIGHT/16,
+                                            width=WIDTH/16
                                             ) for i in range(2)])
 
         self.decoder1 = upsample_conv2d_and_predict_flow(in_channels=16*_BASE_CHANNELS,

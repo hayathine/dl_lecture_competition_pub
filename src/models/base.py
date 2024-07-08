@@ -12,14 +12,12 @@ class build_resnet_block(nn.Module):
         self._layers = layers
         self.height = int(height)
         self.width = int(width)
-        self.image_shape = torch.empty((512,60,80), dtype=torch.int64),
 
         self.res_block = nn.Sequential(*[general_conv2d(in_channels=self._channels,
                                             out_channels=self._channels,
                                             stride=1,
                                             height=self.height,
                                             width=self.width,
-                                            image_shape=self.image_shape,
                                             do_batch_norm=do_batch_norm) for i in range(self._layers)])
 
     def forward(self,input_res):
