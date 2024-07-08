@@ -157,7 +157,7 @@ def main(args: DictConfig):
                 loss: torch.Tensor = compute_epe_error(flow, ground_truth_flow)
                 print(f"batch {i} loss: {loss.item()}")
                 loss.backward()
-                optimizer.step()
+                # optimizer.step()
                 # optimizer.zero_grad()
 
                 if step_count % 8 == 0:  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
