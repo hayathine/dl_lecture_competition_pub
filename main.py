@@ -179,7 +179,7 @@ def main(args: DictConfig):
             ground_truth_flow = batch["flow_gt"].to(device) # [B, 2, 480, 640]
             flow = model(event_image) # [B, 2, 480, 640]
             loss: torch.Tensor = compute_epe_error(flow, ground_truth_flow)/8
-            print(f"batch:{i}, loss: {loss}")
+            # print(f"batch:{i}, loss: {loss}")
             loss.backward()
             optimizer.step()
             if step_count % 8 == 0 or step_count-1 == len(train_data):  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
