@@ -72,10 +72,6 @@ class EVFlowNet(nn.Module):
         self.dropout = nn.Dropout(p=self._args.dropout)
 
     def forward(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
-        print(_BASE_CHANNELS)
-        print(self.height/8)
-        print(self.width/8)
-        print(inputs['event'].shape)
         # encoder
         skip_connections = {}
         # torch.size([8, 2, 480, 640])
