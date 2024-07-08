@@ -155,6 +155,7 @@ def main(args: DictConfig):
             ground_truth_flow = batch["flow_gt"].to(device) # [B, 2, 480, 640]
             flow = model(event_image) # [B, 2, 480, 640]
             loss: torch.Tensor = compute_epe_error(flow, ground_truth_flow)
+            print(f"batch {i} loss: {loss.item()}")
             loss.backward()
             optimizer.step()
 
