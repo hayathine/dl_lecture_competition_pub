@@ -161,7 +161,7 @@ def main(args: DictConfig):
                 # optimizer.zero_grad()
 
                 if step_count % 8 == 0:  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
-                    # optimizer.step()
+                    optimizer.step()
                     optimizer.zero_grad()
                     step_count = 0
                 total_loss += loss.item()
