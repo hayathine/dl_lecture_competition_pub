@@ -147,7 +147,7 @@ def main(args: DictConfig):
         total_loss = 0
         step_count = 0
         for i, batch in enumerate(tqdm(train_data)):
-            optimizer.zero_grad()
+            # optimizer.zero_grad()
             
             step_count += 1
             batch: Dict[str, Any]
@@ -157,12 +157,12 @@ def main(args: DictConfig):
             loss: torch.Tensor = compute_epe_error(flow, ground_truth_flow)
             print(f"batch {i} loss: {loss.item()}")
             loss.backward()
-            optimizer.step()
+            # optimizer.step()
 
-            # if step_count % 9 == 0:  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
-            #     optimizer.step()
-            #     optimizer.zero_grad()
-                # step_count = 0
+            if step_count % 9 == 0:  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
+                optimizer.step()
+                optimizer.zero_grad()
+                step_count = 0
             total_loss += loss.item()
 
 
