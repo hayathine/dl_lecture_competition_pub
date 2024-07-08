@@ -147,23 +147,24 @@ def main(args: DictConfig):
         total_loss = 0
         step_count = 0
         for i, batch in enumerate(tqdm(train_data)):
-            # optimizer.zero_grad()
             
-            step_count += 1
-            batch: Dict[str, Any]
-            event_image = batch["event_volume"].to(device) # [B, 4, 480, 640]
-            ground_truth_flow = batch["flow_gt"].to(device) # [B, 2, 480, 640]
-            flow = model(event_image) # [B, 2, 480, 640]
-            loss: torch.Tensor = compute_epe_error(flow, ground_truth_flow)
-            print(f"batch {i} loss: {loss.item()}")
-            loss.backward()
-            optimizer.step()
+            with torch.set_grad_enabled(True):
+                step_count += 1
+                batch: Dict[str, Any]
+                event_image = batch["event_volume"].to(device) # [B, 4, 480, 640]
+                ground_truth_flow = batch["flow_gt"].to(device) # [B, 2, 480, 640]
+                flow = model(event_image) # [B, 2, 480, 640]
+                loss: torch.Tensor = compute_epe_error(flow, ground_truth_flow)
+                print(f"batch {i} loss: {loss.item()}")
+                loss.backward()
+                optimizer.step()
+                # optimizer.zero_grad()
 
-            if step_count % 9 == 0:  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
-                # optimizer.step()
-                optimizer.zero_grad()
-                step_count = 0
-            total_loss += loss.item()
+                if step_count % 8 == 0:  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
+                    # optimizer.step()
+                    optimizer.zero_grad()
+                    step_count = 0
+                total_loss += loss.item()
 
 
         print(f"epoch:{epoch} batch {i} loss: {total_loss / len(train_data)}")
