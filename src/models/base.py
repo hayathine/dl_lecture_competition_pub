@@ -48,18 +48,29 @@ class upsample_conv2d_and_predict_flow(nn.Module):
         self._dropout = dropout
 
         # conv2d, layer_norm, relu, dropout
-        self.conv2d = general_conv2d(in_channels=self._in_channels, out_channels=self._out_channels, 
-                                kernel_size=self._kernel_size, stride=1, padding=1)
+        self.conv2d_1 = general_conv2d(in_channels=self._in_channels, 
+                                        out_channels=self._out_channels, 
+                                        kernel_size=self._kernel_size,
+                                        stride=1, 
+                                        padding=1,
+                                        height=self.height,
+                                        width=self.width,
+                                        do_batch_norm=self._do_batch_norm,
+                                        dropout=self._dropout)
 
         self.pad = nn.ReflectionPad2d(padding=(int((self._kernel_size-1)/2), int((self._kernel_size-1)/2),
                                         int((self._kernel_size-1)/2), int((self._kernel_size-1)/2)))
 
-        self.predict_flow = general_conv2d(in_channels=self._out_channels,
-                                            out_channels=2,
-                                            kernel_size=1,
-                                            stride=1,
-                                            padding=0,
-                                            activation='tanh')
+        self.predict_flow = general_conv2d(in_channels=self._in_channels, 
+                                        out_channels=self._out_channels, 
+                                        kernel_size=self._kernel_size,
+                                        stride=1, 
+                                        padding=1,
+                                        height=self.height,
+                                        width=self.width,
+                                        do_batch_norm=self._do_batch_norm,
+                                        dropout=self._dropout,
+                                        activation='tanh')
 
     def forward(self, conv):
         shape = conv.shape
@@ -68,16 +79,10 @@ class upsample_conv2d_and_predict_flow(nn.Module):
         conv = self.general_conv2d(conv)
 
         # conv2d, layer_norm, relu, dropout
-        conv = self.conv2d(conv)
-        conv = F.layer_norm(conv, [2, self.height,self.width])
-        conv = F.relu(conv)
-        conv = F.dropout(conv, p=self._dropout)
+        conv = self.conv2d_1(conv)
 
         # conv2d, layer_norm, tanh, dropout
-        flow = self.conv2d(conv)
-        flow = F.layer_norm(flow, [2, self.height,self.width])
-        flow = F.tanh(flow)
-        flow = F.dropout(flow, p=self._dropout)
+        flow = self.predict_flow(conv)
         flow = flow * 256
 
         return torch.cat([conv,flow.clone()], dim=1), flow

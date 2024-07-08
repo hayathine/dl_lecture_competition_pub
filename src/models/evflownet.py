@@ -58,16 +58,28 @@ class EVFlowNet(nn.Module):
                                             ) for i in range(2)])
 
         self.decoder1 = upsample_conv2d_and_predict_flow(in_channels=16*_BASE_CHANNELS,
-                        out_channels=4*_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
+                        out_channels=4*_BASE_CHANNELS, 
+                        do_batch_norm=not self._args.no_batch_norm,
+                        height=HEIGHT/8,
+                        width=WIDTH/8)
 
         self.decoder2 = upsample_conv2d_and_predict_flow(in_channels=8*_BASE_CHANNELS+2,
-                        out_channels=2*_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
+                        out_channels=2*_BASE_CHANNELS, 
+                        do_batch_norm=not self._args.no_batch_norm,
+                        height=HEIGHT/4,
+                        width=WIDTH/4)
 
         self.decoder3 = upsample_conv2d_and_predict_flow(in_channels=4*_BASE_CHANNELS+2,
-                        out_channels=_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
+                        out_channels=_BASE_CHANNELS, 
+                        do_batch_norm=not self._args.no_batch_norm,
+                        height=HEIGHT/2,
+                        width=WIDTH/2)
 
         self.decoder4 = upsample_conv2d_and_predict_flow(in_channels=2*_BASE_CHANNELS+2,
-                        out_channels=int(_BASE_CHANNELS/2), do_batch_norm=not self._args.no_batch_norm)
+                        out_channels=int(_BASE_CHANNELS/2), 
+                        do_batch_norm=not self._args.no_batch_norm,
+                        height=HEIGHT,
+                        width=WIDTH)
         
         self.dropout = nn.Dropout(p=self._args.dropout)
 
