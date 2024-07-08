@@ -53,8 +53,8 @@ class upsample_conv2d_and_predict_flow(nn.Module):
                                         kernel_size=self._kernel_size,
                                         stride=1, 
                                         padding=1,
-                                        height=self.height,
-                                        width=self.width,
+                                        height=int(height),
+                                        width=int(width),
                                         do_batch_norm=self._do_batch_norm,
                                         dropout=self._dropout)
 
@@ -66,8 +66,8 @@ class upsample_conv2d_and_predict_flow(nn.Module):
                                         kernel_size=self._kernel_size,
                                         stride=1, 
                                         padding=1,
-                                        height=self.height,
-                                        width=self.width,
+                                        height=int(height),
+                                        width=int(width),
                                         do_batch_norm=self._do_batch_norm,
                                         dropout=self._dropout,
                                         activation='tanh')
