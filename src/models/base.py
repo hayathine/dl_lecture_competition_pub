@@ -61,7 +61,7 @@ class upsample_conv2d_and_predict_flow(nn.Module):
 
         self.predict_flow = general_conv2d(in_channels=self._out_channels, 
                                         out_channels=2, 
-                                        kernel_size=self._kernel_size,
+                                        kernel_size=1,
                                         stride=1, 
                                         padding=0,
                                         height=int(height),
