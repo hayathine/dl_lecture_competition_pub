@@ -74,11 +74,8 @@ class upsample_conv2d_and_predict_flow(nn.Module):
         shape = conv.shape
         conv = nn.functional.interpolate(conv,size=[shape[2]*2,shape[3]*2],mode='nearest')
         conv = self.pad(conv)
-        conv = self.general_conv2d(conv)
-
         # conv2d, layer_norm, relu, dropout
         conv = self.conv2d_1(conv)
-
         # conv2d, layer_norm, tanh, dropout
         flow = self.predict_flow(conv)
         flow = flow * 256
