@@ -186,8 +186,9 @@ def main(args: DictConfig):
                 loss += compute_epe_error(flow_dict[key], ground_truth_flow)/8
             # print(f"batch:{i}, loss: {loss}")
             loss.backward()
-            optimizer.step()
             if step_count % 8 == 0 or step_count-1 == len(train_data):  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
+                # 勾配クリッピング
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                 optimizer.step()
                 optimizer.zero_grad()
             total_loss += loss.item()
