@@ -182,7 +182,7 @@ def main(args: DictConfig):
             total_loss += loss.item()
 
 
-        print(f"epoch:{epoch} batch {i} loss: {loss.item()}")
+        print(f"epoch:{epoch} batch {i} loss: {total_loss / len(train_data)}")
         torch.save(model.state_dict(), model_save_path)
 
         # Create the directory if it doesn't exist
