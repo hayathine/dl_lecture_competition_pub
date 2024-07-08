@@ -1,8 +1,8 @@
 dataset_path: data
 seed: 42
 num_epoch: 100
-seva_path: data/seva
-load_path: data/seva
+save_name: data/seva
+load_name: data/seva
 data_loader:
   common:
     num_voxel_bins: 15
