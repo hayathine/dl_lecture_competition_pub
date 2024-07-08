@@ -147,6 +147,7 @@ def main(args: DictConfig):
         total_loss = 0
         step_count = 0
         for i, batch in enumerate(tqdm(train_data)):
+            optimizer.zero_grad()
             
             step_count += 1
             batch: Dict[str, Any]
@@ -154,9 +155,8 @@ def main(args: DictConfig):
             ground_truth_flow = batch["flow_gt"].to(device) # [B, 2, 480, 640]
             flow = model(event_image) # [B, 2, 480, 640]
             loss: torch.Tensor = compute_epe_error(flow, ground_truth_flow)
-            optimizer.step()
             loss.backward()
-            optimizer.zero_grad()
+            optimizer.step()
 
             # if step_count % 9 == 0:  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
             #     optimizer.step()
