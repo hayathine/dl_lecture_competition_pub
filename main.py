@@ -122,6 +122,7 @@ def main(args: DictConfig):
     model.train()
     for epoch in range(args.train.epochs):
         total_loss = 0
+        step_count = 0
         print("on epoch: {}".format(epoch+1))
         for i, batch in enumerate(tqdm(train_data)):
             batch: Dict[str, Any]
@@ -129,10 +130,12 @@ def main(args: DictConfig):
             ground_truth_flow = batch["flow_gt"].to(device) # [B, 2, 480, 640]
             flow = model(event_image) # [B, 2, 480, 640]
             loss: torch.Tensor = compute_epe_error(flow, ground_truth_flow)
-            print(f"batch {i} loss: {loss.item()}")
-            optimizer.zero_grad()
             loss.backward()
-            optimizer.step()
+            #　バッチサイズの疑似拡張
+            if step_count == 8:
+                optimizer.step()
+                optimizer.zero_grad()
+                step_count = 0
 
             total_loss += loss.item()
         print(f'Epoch {epoch+1}, Loss: {total_loss / len(train_data)}')
