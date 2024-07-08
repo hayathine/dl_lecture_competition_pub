@@ -13,9 +13,12 @@ from pathlib import Path
 from typing import Dict, Any
 import os
 import time
+import datetime
+from pytz import timezone
 
 
 class RepresentationType(Enum):
+    PATH = '/content/drive/MyDrive/DL_lesson/DLlast/checkpoints'
     VOXEL = auto()
     STEPAN = auto()
 
@@ -44,10 +47,15 @@ def save_optical_flow_to_npy(flow: torch.Tensor, file_name: str):
     '''
     np.save(f"{file_name}.npy", flow.cpu().numpy())
 
+def get_time():
+    time = datetime.datetime.now(timezone('Asia/Tokyo'))
+    return time.strftime("%Y%m%d%H%M")
 @hydra.main(version_base=None, config_path="configs", config_name="base")
 def main(args: DictConfig):
     set_seed(args.seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    SAVE_NAME = Path(args.save_name)
+    LOAD_NAME = Path(args.load_name)    
     '''
         ディレクトリ構造:
 
@@ -84,15 +92,19 @@ def main(args: DictConfig):
     test_set = loader.get_test_dataset()
     collate_fn = train_collate
     train_data = DataLoader(train_set,
-                                 batch_size=args.data_loader.train.batch_size,
-                                 shuffle=args.data_loader.train.shuffle,
-                                 collate_fn=collate_fn,
-                                 drop_last=False)
+                                batch_size=args.data_loader.train.batch_size,
+                                shuffle=args.data_loader.train.shuffle,
+                                collate_fn=collate_fn,
+                                num_workers=2,
+                                pin_memory=True,
+                                drop_last=False)
     test_data = DataLoader(test_set,
-                                 batch_size=args.data_loader.test.batch_size,
-                                 shuffle=args.data_loader.test.shuffle,
-                                 collate_fn=collate_fn,
-                                 drop_last=False)
+                                batch_size=args.data_loader.test.batch_size,
+                                shuffle=args.data_loader.test.shuffle,
+                                collate_fn=collate_fn,
+                                num_workers=2,
+                                pin_memory=True,
+                                drop_last=False)
 
     '''
     train data:
@@ -107,6 +119,16 @@ def main(args: DictConfig):
         Key: seq_name, Type: list
         Key: event_volume, Type: torch.Tensor, Shape: torch.Size([Batch, 4, 480, 640]) => イベントデータのバッチ
     '''
+
+    current_time = get_time()
+    model_load_path = f"{LOAD_NAME}"
+
+    # 学習済みのモデルがあれば読み込む
+    if os.path.exists(model_load_path):
+        model.load_state_dict(torch.load(model_load_path, map_location=device))
+        print(f"Model loaded from {model_load_path}")
+    else:
+        print("First training model")
     # ------------------
     #       Model
     # ------------------
@@ -121,24 +143,27 @@ def main(args: DictConfig):
     # ------------------
     model.train()
     for epoch in range(args.train.epochs):
+        model_save_path = f'checkpoints/{current_time}_{epoch}_{SAVE_NAME}'
         total_loss = 0
-        step_count = 0
-        print("on epoch: {}".format(epoch+1))
+        # print(f"Epoch {epoch+1} start")
         for i, batch in enumerate(tqdm(train_data)):
+            step_count += 1
             batch: Dict[str, Any]
             event_image = batch["event_volume"].to(device) # [B, 4, 480, 640]
             ground_truth_flow = batch["flow_gt"].to(device) # [B, 2, 480, 640]
             flow = model(event_image) # [B, 2, 480, 640]
             loss: torch.Tensor = compute_epe_error(flow, ground_truth_flow)
             loss.backward()
-            #　バッチサイズの疑似拡張
-            if step_count == 8:
-                optimizer.step()
-                optimizer.zero_grad()
-                step_count = 0
-
+            # if step_count % 9 == 0:  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
+            #     optimizer.step()
+            #     optimizer.zero_grad()
             total_loss += loss.item()
-        print(f'Epoch {epoch+1}, Loss: {total_loss / len(train_data)}')
+
+
+        print(f"epoch:{epoch} batch {i} loss: {loss.item()}")
+        print('-------------------------------')
+        torch.save(model.state_dict(), model_save_path)
+        print('-------------------------------')
 
     # Create the directory if it doesn't exist
     if not os.path.exists('checkpoints'):
