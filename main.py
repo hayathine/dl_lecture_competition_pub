@@ -145,7 +145,7 @@ def main(args: DictConfig):
     for epoch in range(args.train.epochs):
         model_save_path = f'checkpoints/{current_time}_{epoch}_{SAVE_NAME}'
         total_loss = 0
-        # print(f"Epoch {epoch+1} start")
+        step_count = 0
         for i, batch in enumerate(tqdm(train_data)):
             step_count += 1
             batch: Dict[str, Any]
@@ -157,6 +157,7 @@ def main(args: DictConfig):
             # if step_count % 9 == 0:  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
             #     optimizer.step()
             #     optimizer.zero_grad()
+                # step_count = 0
             total_loss += loss.item()
 
 
