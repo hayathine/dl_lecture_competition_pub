@@ -36,7 +36,10 @@ def compute_epe_error(pred_flow: torch.Tensor, gt_flow: torch.Tensor):
     gt_flow: torch.Tensor, Shape: torch.Size([B, 2, 480, 640]) => 正解のオプティカルフローデータ
     '''
     epe = torch.mean(torch.mean(torch.norm(pred_flow - gt_flow, p=2, dim=1), dim=(1, 2)), dim=0)
+
     return epe
+
+# 中間層のサイズをtorch.Size([B, 2, 480, 640]に変更する
 
 def save_optical_flow_to_npy(flow: torch.Tensor, file_name: str):
     '''
@@ -177,8 +180,10 @@ def main(args: DictConfig):
             batch: Dict[str, Any]
             event_image = batch["event_volume"].to(device) # [B, 4, 480, 640]
             ground_truth_flow = batch["flow_gt"].to(device) # [B, 2, 480, 640]
-            flow = model(event_image) # [B, 2, 480, 640]
-            loss: torch.Tensor = compute_epe_error(flow, ground_truth_flow)/8
+            flow_dict = model(event_image) # [B, 2, 480, 640]
+            loss = 0
+            for key in flow_dict.keys():
+                loss += compute_epe_error(flow_dict[key], ground_truth_flow)/8
             # print(f"batch:{i}, loss: {loss}")
             loss.backward()
             optimizer.step()

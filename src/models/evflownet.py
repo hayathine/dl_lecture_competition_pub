@@ -124,7 +124,10 @@ class EVFlowNet(nn.Module):
         inputs, flow = self.decoder4(inputs)
         flow_dict['flow3'] = flow.clone()
         # 最後のflowだけを用いているflow_dictを活用する
-        return flow
+        # 各flowのサイズを[8, 2, 480, 640]に変更する
+        for key in flow_dict.keys():
+            flow_dict[key] = F.interpolate(flow_dict[key], size=[480,640], mode='nearest')
+        return flow_dict
         
 
 # if __name__ == "__main__":
