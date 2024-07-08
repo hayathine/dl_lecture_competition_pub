@@ -19,7 +19,7 @@ class build_resnet_block(nn.Module):
                                             stride=1,
                                             height=self.height,
                                             width=self.width,
-                                            image_shape=image_shape,
+                                            image_shape=self.image_shape,
                                             do_batch_norm=do_batch_norm) for i in range(self._layers)])
 
     def forward(self,input_res):
