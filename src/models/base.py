@@ -59,7 +59,7 @@ class upsample_conv2d_and_predict_flow(nn.Module):
         self.pad = nn.ReflectionPad2d(padding=(int((self._kernel_size-1)/2), int((self._kernel_size-1)/2),
                                         int((self._kernel_size-1)/2), int((self._kernel_size-1)/2)))
 
-        self.predict_flow = general_conv2d(in_channels=self._in_channels, 
+        self.predict_flow = general_conv2d(in_channels=self._out_channels, 
                                         out_channels=2, 
                                         kernel_size=self._kernel_size,
                                         stride=1, 
