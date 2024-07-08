@@ -107,12 +107,14 @@ def main(args: DictConfig):
     train_data = DataLoader(train_set,
                                 batch_size=args.data_loader.train.batch_size,
                                 num_workers=args.num_workers,
+                                pin_memory=True,
                                 shuffle=args.data_loader.train.shuffle,
                                 collate_fn=collate_fn,
                                 drop_last=False)
     test_data = DataLoader(test_set,
                                 batch_size=args.data_loader.test.batch_size,
                                 num_workers=args.num_workers,
+                                pin_memory=True,
                                 shuffle=args.data_loader.test.shuffle,
                                 collate_fn=collate_fn,
                                 drop_last=False)
@@ -176,16 +178,17 @@ def main(args: DictConfig):
             event_image = batch["event_volume"].to(device) # [B, 4, 480, 640]
             ground_truth_flow = batch["flow_gt"].to(device) # [B, 2, 480, 640]
             flow = model(event_image) # [B, 2, 480, 640]
-            loss: torch.Tensor = compute_epe_error(flow, ground_truth_flow)
+            loss: torch.Tensor = compute_epe_error(flow, ground_truth_flow)/8
+            print(f"batch:{i}, loss: {loss}")
             loss.backward()
             optimizer.step()
-            # if step_count % 16 == 0:  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
-            #     optimizer.step()
-            #     optimizer.zero_grad()
+            if step_count % 8 == 0 or step_count-1 == len(train_data):  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
+                optimizer.step()
+                optimizer.zero_grad()
             total_loss += loss.item()
 
 
-        print(f"epoch:{epoch} batch {i} loss: {loss.item()}")
+        print(f"epoch:{epoch} batch {i} loss: {total_loss / len(train_data)}")
         torch.save(model.state_dict(), model_save_path)
 
         # Create the directory if it doesn't exist
