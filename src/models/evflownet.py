@@ -14,7 +14,7 @@ class EVFlowNet(nn.Module):
         self._args = args
 
         self.encoder1 = general_conv2d(
-                                    4, 
+                                    self._args.num_bins, 
                                     _BASE_CHANNELS ,
                                     kernel_size=3, 
                                     stride=2, 
