@@ -191,7 +191,7 @@ def main(args: DictConfig):
                 print(f"batch:{i}, loss: {loss}")
             loss.backward()
             if step_count % 8 == 0 or step_count-1 == len(train_data):  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
-                print(f'step_update_{i//8}')
+                print(f'step_update_{i//8}_loss: {loss.item()}')
                 # 勾配クリッピング
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                 optimizer.step()
@@ -200,6 +200,7 @@ def main(args: DictConfig):
 
 
         print(f"epoch:{epoch} batch {i} loss: {total_loss / len(train_data)}")
+        print(f"final_train_loss: {loss.item()}")
         torch.save(model.state_dict(), model_save_path)
 
         # Create the directory if it doesn't exist
