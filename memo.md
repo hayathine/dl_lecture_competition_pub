@@ -56,4 +56,8 @@ GANによる画像生成　第10回
 
 https://pystyle.info/pytorch-list-of-transforms/
 
-random_cropが使える
+random_cropが使える？
+
+#### 2024/07/10
+
+num_bins16,batch_extend=16をためす

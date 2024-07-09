@@ -189,14 +189,14 @@ def main(args: DictConfig):
             flow_dict, _ = model(event_image) # [B, 2, 480, 640]
             loss = 0
             for key in flow_dict.keys():
-                loss += compute_epe_error(flow_dict[key], ground_truth_flow)/8
+                loss += compute_epe_error(flow_dict[key], ground_truth_flow)/args.batch_extend
             if args.detail==True:
                 print(f"batch:{i}, loss: {loss}")
             loss.backward()
             batch_loss += loss.item()
             # TODO:16iterに変更したら？
             if step_count % args.batch_extend == 0 or epoch == len(train_data):  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
-                print(f'step_update_{i//8}_loss: {batch_loss/args.batch_extend}')
+                print(f'step_update_{i//args.batch_extend}_loss: {batch_loss/args.batch_extend}')
                 step_count = 0
                 # 勾配クリッピング
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
