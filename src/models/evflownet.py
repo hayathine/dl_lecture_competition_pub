@@ -83,7 +83,7 @@ class EVFlowNet(nn.Module):
         
         self.dropout = nn.Dropout(p=self._args.dropout)
 
-    def forward(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
+    def forward(self, inputs: Dict[str, Any]) :
         # encoder
         skip_connections = {}
         # torch.size([8, 2, 480, 640])
@@ -127,7 +127,7 @@ class EVFlowNet(nn.Module):
         # 各flowのサイズを[8, 2, 480, 640]に変更する
         for key in flow_dict.keys():
             flow_dict[key] = F.interpolate(flow_dict[key], size=[480,640], mode='nearest')
-        return flow_dict
+        return flow_dict, flow
         
 
 # if __name__ == "__main__":
