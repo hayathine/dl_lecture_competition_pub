@@ -11,6 +11,7 @@ load_name: None
 detail: False
 optimizer: adamW
 sequenceRecurrent: False
+batch_extend: 8
 transforms: 
   random_crop: True
 data_loader:

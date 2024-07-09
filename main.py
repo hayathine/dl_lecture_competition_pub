@@ -193,7 +193,7 @@ def main(args: DictConfig):
                 print(f"batch:{i}, loss: {loss}")
             loss.backward()
             # TODO:16iterに変更したら？
-            if step_count % 8 == 0 or epoch == len(train_data):  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
+            if step_count % args.batch_extend == 0 or epoch == len(train_data):  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
                 print(f'step_update_{i//8}_loss: {loss.item()}')
                 step_count = 0
                 # 勾配クリッピング
