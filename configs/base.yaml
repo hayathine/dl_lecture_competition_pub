@@ -10,6 +10,7 @@ save_name: n001.pth
 load_name: None
 detail: False
 optimizer: adamW
+sequenceRecurrent: False
 transforms: 
   random_crop: True
 data_loader:

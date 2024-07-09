@@ -529,6 +529,7 @@ class SequenceRecurrent(Sequence):
 
 class DatasetProvider:
     def __init__(self, dataset_path: Path, representation_type: RepresentationType, delta_t_ms: int = 100, num_bins=4,
+                sequenceRecurrent=False,
                 config=None, visualize=False):
         test_path = Path(os.path.join(dataset_path, 'test'))
         train_path = Path(os.path.join(dataset_path, 'train'))
@@ -558,11 +559,19 @@ class DatasetProvider:
         train_sequences: list[Sequence] = []
         for seq in seqs:
             extra_arg = dict()
-            train_sequences.append(SequenceRecurrent(Path(train_path) / seq,
-                                    representation_type=representation_type, mode="train",
-                                    transforms={'randomcrop': (400, 600)},
-                                   load_gt=True, **extra_arg))
-            self.train_dataset: torch.utils.data.ConcatDataset[Sequence] = torch.utils.data.ConcatDataset(train_sequences)
+            if sequenceRecurrent == True:
+                train_sequences.append(SequenceRecurrent(Path(train_path) / seq,
+                                        representation_type=representation_type, mode="train",
+                                        transforms={'randomcrop': (400, 600)},
+                                    load_gt=True, **extra_arg))
+                self.train_dataset: torch.utils.data.ConcatDataset[Sequence] = torch.utils.data.ConcatDataset(train_sequences)
+            else:
+                
+                train_sequences.append(Sequence(Path(train_path) / seq,
+                                        representation_type=representation_type, mode="train",
+                                        transforms={'randomcrop': (400, 600)},
+                                    load_gt=True, **extra_arg))
+                self.train_dataset: torch.utils.data.ConcatDataset[Sequence] = torch.utils.data.ConcatDataset(train_sequences)
 
     def get_test_dataset(self):
         return self.test_dataset

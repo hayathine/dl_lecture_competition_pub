@@ -103,6 +103,7 @@ def main(args: DictConfig):
         delta_t_ms=100,
         num_bins=args.num_bins,
         visualize=True,
+        sequenceRecurrent=args.sequenceRecurrent,
         config=None
     )
     train_set = loader.get_train_dataset()
@@ -113,7 +114,7 @@ def main(args: DictConfig):
                                 num_workers=args.num_workers,
                                 pin_memory=True,
                                 shuffle=args.data_loader.train.shuffle,
-                                collate_fn=collate_fn,
+                                collate_fn=collate_fn, # collate_fnはデータをバッチにまとめる関数
                                 drop_last=False)
     test_data = DataLoader(test_set,
                                 batch_size=args.data_loader.test.batch_size,
