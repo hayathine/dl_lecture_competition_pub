@@ -51,3 +51,9 @@ softmaxの勾配が小さくなるのを防ぐためで,Scaled Dot-Product
 Attentionと呼ばれる.
 
 GANによる画像生成　第10回
+
+画像の前処理．- 画像の前処理には形状を同じにするためのResizeのみを利用しています．第5回の演習で紹介したようなデータ拡張を追加することで，疑似的にデータを増やし汎化性能の向上が見込めます．ただし，イベントデータは非常に疎なデータなので少し工夫が必要かもしれません．
+
+https://pystyle.info/pytorch-list-of-transforms/
+
+random_cropが使える

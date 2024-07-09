@@ -140,7 +140,7 @@ def main(args: DictConfig):
     # ------------------
     #       Model
     # ------------------
-    model = EVFlowNet(args.train).to(device)
+    model = EVFlowNet(args.train).to(device,non_blocking=True)
 
     # ------------------
     #   optimizer
@@ -181,8 +181,8 @@ def main(args: DictConfig):
             optimizer.zero_grad()
             step_count += 1
             batch: Dict[str, Any]
-            event_image = batch["event_volume"].to(device) # [B, 4, 480, 640]
-            ground_truth_flow = batch["flow_gt"].to(device) # [B, 2, 480, 640]
+            event_image = batch["event_volume"].to(device,non_blocking=True) # [B, 4, 480, 640]
+            ground_truth_flow = batch["flow_gt"].to(device,non_blocking=True) # [B, 2, 480, 640]
             flow_dict, _ = model(event_image) # [B, 2, 480, 640]
             loss = 0
             for key in flow_dict.keys():
@@ -234,12 +234,12 @@ def main(args: DictConfig):
 
     model.load_state_dict(torch.load(model_load, map_location=device))
     model.eval()
-    flow: torch.Tensor = torch.tensor([]).to(device)
+    flow: torch.Tensor = torch.tensor([]).to(device,non_blocking=True)
     with torch.no_grad():
         print(f"start test:{model_load}_model")
         for batch in tqdm(test_data):
             batch: Dict[str, Any]
-            event_image = batch["event_volume"].to(device) # [1, 4, 480, 640]
+            event_image = batch["event_volume"].to(device,non_blocking=True) # [1, 4, 480, 640]
             flow_dict,batch_flow = model(event_image) # [1, 2, 480, 640]
             flow = torch.cat((flow, batch_flow), dim=0)  # [N, 2, 480, 640]
         print("test done")
