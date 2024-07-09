@@ -197,6 +197,7 @@ def main(args: DictConfig):
             # TODO:16iterに変更したら？
             if step_count % args.batch_extend == 0 or epoch == len(train_data):  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
                 print(f'step_update_{i//args.batch_extend}_loss: {batch_loss/args.batch_extend}')
+                batch_loss = 0
                 step_count = 0
                 # 勾配クリッピング
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
