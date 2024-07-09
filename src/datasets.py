@@ -480,7 +480,7 @@ class SequenceRecurrent(Sequence):
 
         ts_cur = self.timestamps_flow[j]
         # Add first sample
-        sample = self.get_data_sample(j)
+        sample = self.get_data(j)
         sequence.append(sample)
 
         # Data augmentation according to first sample
@@ -496,7 +496,7 @@ class SequenceRecurrent(Sequence):
             ts_old = ts_cur
             ts_cur = self.timestamps_flow[j]
             assert(ts_cur-ts_old < 100000 + 1000)
-            sample = self.get_data_sample(
+            sample = self.get_data(
                 j, crop_window=crop_window, flip=flip)
             sequence.append(sample)
 
