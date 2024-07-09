@@ -96,6 +96,7 @@ def main(args: DictConfig):
     num_bins:
     イベントデータのビン数。
     """
+    # TODO:num_binsを2に変更
     loader = DatasetProvider(
         dataset_path=Path(args.dataset_path),
         representation_type=RepresentationType.VOXEL,
@@ -190,8 +191,10 @@ def main(args: DictConfig):
             if args.detail==True:
                 print(f"batch:{i}, loss: {loss}")
             loss.backward()
-            if step_count % 8 == 0 or step_count-1 == len(train_data):  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
+            # TODO:16iterに変更したら？
+            if step_count % 8 == 0 or epoch == len(train_data):  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
                 print(f'step_update_{i//8}_loss: {loss.item()}')
+                step_count = 0
                 # 勾配クリッピング
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                 optimizer.step()

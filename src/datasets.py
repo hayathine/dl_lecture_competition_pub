@@ -440,7 +440,7 @@ class Sequence(Dataset):
                 event_count[mask] = event_count[mask] - mean
         return event_count
 
-
+# TODO:使われていないクラス。使い方考える
 class SequenceRecurrent(Sequence):
     def __init__(self, seq_path: Path, representation_type: RepresentationType, mode: str = 'test', delta_t_ms: int = 100,
                 num_bins: int = 15, transforms=None, sequence_length=1, name_idx=0, visualize=False, load_gt=False):
