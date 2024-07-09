@@ -145,7 +145,10 @@ def main(args: DictConfig):
     # ------------------
     #   optimizer
     # ------------------
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.train.initial_learning_rate, weight_decay=args.train.weight_decay)
+    if args.optimizer == 'adam':
+        optimizer = torch.optim.Adam(model.parameters(), lr=args.train.initial_learning_rate, weight_decay=args.train.weight_decay)
+    else:
+        optimizer = torch.optim.AdamW(model.parameters(), lr=args.train.initial_learning_rate, weight_decay=args.train.weight_decay)
     # ------------------
     #   Start training
     # ------------------
@@ -188,6 +191,7 @@ def main(args: DictConfig):
                 print(f"batch:{i}, loss: {loss}")
             loss.backward()
             if step_count % 8 == 0 or step_count-1 == len(train_data):  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
+                print(f'step_update_{i//8}')
                 # 勾配クリッピング
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                 optimizer.step()
