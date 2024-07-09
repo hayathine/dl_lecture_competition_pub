@@ -178,6 +178,7 @@ def main(args: DictConfig):
     for epoch in range(args.train.epochs):
         model_save_path = f'checkpoints/{current_time}_{epoch}_{SAVE_NAME}'
         total_loss = 0
+        batch_loss = 0
         # print(f"Epoch {epoch+1} start")
         for i, batch in enumerate(tqdm(train_data)):
             optimizer.zero_grad()
@@ -192,9 +193,10 @@ def main(args: DictConfig):
             if args.detail==True:
                 print(f"batch:{i}, loss: {loss}")
             loss.backward()
+            batch_loss += loss.item()
             # TODO:16iterに変更したら？
             if step_count % args.batch_extend == 0 or epoch == len(train_data):  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
-                print(f'step_update_{i//8}_loss: {loss.item()}')
+                print(f'step_update_{i//8}_loss: {batch_loss/args.batch_extend}')
                 step_count = 0
                 # 勾配クリッピング
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
