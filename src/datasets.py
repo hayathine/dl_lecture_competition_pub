@@ -511,7 +511,7 @@ class SequenceRecurrent(Sequence):
         # TODO:random crop
         if self.crop_size is not None:
             i, j, h, w = RandomCrop.get_params(
-                sample["event_volume_old"], output_size=self.crop_size)
+                sample["event_volume"], output_size=self.crop_size)
             keys_to_crop = ["event_volume_old", "event_volume_new",
                             "flow_gt_event_volume_old", "flow_gt_event_volume_new", 
                             "flow_gt_next",]
