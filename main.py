@@ -184,7 +184,8 @@ def main(args: DictConfig):
             loss = 0
             for key in flow_dict.keys():
                 loss += compute_epe_error(flow_dict[key], ground_truth_flow)/8
-            # print(f"batch:{i}, loss: {loss}")
+            if args.detail==True:
+                print(f"batch:{i}, loss: {loss}")
             loss.backward()
             if step_count % 8 == 0 or step_count-1 == len(train_data):  # 8イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
                 # 勾配クリッピング

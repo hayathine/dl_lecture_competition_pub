@@ -7,6 +7,7 @@ num_epoch: 1
 num_workers: 2
 save_name: n001.pth
 load_name: None
+detail: False
 data_loader:
   common:
     num_voxel_bins: 15
