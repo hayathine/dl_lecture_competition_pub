@@ -61,3 +61,10 @@ random_cropが使える？
 #### 2024/07/10
 
 num_bins16,batch_extend=16をためす
+
+num_bins16にするとエラーが出る
+
+```
+RuntimeError: Error(s) in loading state_dict for EVFlowNet:
+	size mismatch for encoder1.0.weight: copying a param with shape torch.Size([64, 4, 3, 3]) from checkpoint, the shape in current model is torch.Size([64, 16, 3, 3]).
+```

@@ -11,6 +11,8 @@ from src.datasets import train_collate
 from tqdm import tqdm
 from pathlib import Path
 from typing import Dict, Any
+import pandas as pd
+import pickle
 import os
 import datetime
 from pytz import timezone
@@ -58,6 +60,8 @@ def main(args: DictConfig):
     set_seed(args.seed)
     SAVE_NAME = Path(args.save_name)
     LOAD_NAME = Path(args.load_name)    
+    current_time = get_time()
+    model_load_path = f"{LOAD_NAME}"
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"device: {device}")
     '''
@@ -105,22 +109,23 @@ def main(args: DictConfig):
         sequenceRecurrent=args.sequenceRecurrent,
         config=None
     )
+    print(f"train data: {len(loader.get_train_dataset())}, test data: {len(loader.get_test_dataset())}")
+    print(f'summary: {loader.get_summary()}')
     train_set = loader.get_train_dataset()
     test_set = loader.get_test_dataset()
-    collate_fn = train_collate
     train_data = DataLoader(train_set,
                                 batch_size=args.data_loader.train.batch_size,
                                 num_workers=args.num_workers,
                                 pin_memory=True,
                                 shuffle=args.data_loader.train.shuffle,
-                                collate_fn=collate_fn, # collate_fnはデータをバッチにまとめる関数
+                                collate_fn=train_collate, # collate_fnはデータをバッチにまとめる関数
                                 drop_last=False)
     test_data = DataLoader(test_set,
                                 batch_size=args.data_loader.test.batch_size,
                                 num_workers=args.num_workers,
                                 pin_memory=True,
                                 shuffle=args.data_loader.test.shuffle,
-                                collate_fn=collate_fn,
+                                collate_fn=train_collate,
                                 drop_last=False)
 
     '''
@@ -141,6 +146,11 @@ def main(args: DictConfig):
     # ------------------
     #       Model
     # ------------------
+    if os.path.exists(model_load_path):
+        model = pickle.load(open(model_load_path, 'rb'))
+        print(f"Model loaded from {model_load_path}")
+    else:
+        print("First training model")
     model = EVFlowNet(args.train).to(device,non_blocking=True)
 
     # ------------------
@@ -164,14 +174,12 @@ def main(args: DictConfig):
         予測されたオプティカルフローと正解データのend point errorを計算する.
     
     """
-    current_time = get_time()
-    model_load_path = f"{LOAD_NAME}"
 
-    if os.path.exists(model_load_path):
-        model.load_state_dict(torch.load(model_load_path, map_location=device))
-        print(f"Model loaded from {model_load_path}")
-    else:
-        print("First training model")
+    # if os.path.exists(model_load_path):
+    #     model.load_state_dict(torch.load(model_load_path, map_location=device))
+    #     print(f"Model loaded from {model_load_path}")
+    # else:
+    #     print("First training model")
     model.train()
     step_count = 0
     for epoch in range(args.train.epochs):
@@ -207,13 +215,16 @@ def main(args: DictConfig):
 
         print(f"epoch:{epoch} batch {i} loss: {total_loss / len(train_data)}")
         print(f"final_train_loss: {loss.item()}")
-        torch.save(model.state_dict(), model_save_path)
+        # torch.save(model.state_dict(), model_save_path)
+        # save model by pickle
+
 
         # Create the directory if it doesn't exist
         if not os.path.exists('checkpoints'):
             os.makedirs('checkpoints')
         
         # torch.save(model.state_dict(), model_load_path)
+        model.dump(model,open(f"{model_save_path}.pkl", 'wb'))
         print(f"Model saved to {model_save_path}")
 
     # ------------------
