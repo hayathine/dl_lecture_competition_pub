@@ -110,7 +110,7 @@ def main(args: DictConfig):
         config=None
     )
     print(f"train data: {len(loader.get_train_dataset())}, test data: {len(loader.get_test_dataset())}")
-    print(f'summary: {loader.get_summary()}')
+    print(f'summary: {loader.summary()}')
     train_set = loader.get_train_dataset()
     test_set = loader.get_test_dataset()
     train_data = DataLoader(train_set,
