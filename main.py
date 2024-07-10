@@ -147,7 +147,8 @@ def main(args: DictConfig):
     #       Model
     # ------------------
     if os.path.exists(model_load_path):
-        model = pickle.load(open(model_load_path, 'rb'))
+        model = pickle.load(open(f'{model_load_path}.pkl', 'rb'))
+        # model.load_state_dict(torch.load(model_load, map_location=device))
         print(f"Model loaded from {model_load_path}")
     else:
         print("First training model")
@@ -249,7 +250,6 @@ def main(args: DictConfig):
     else:
         model_load = model_load_path
 
-    model.load_state_dict(torch.load(model_load, map_location=device))
     model.eval()
     flow: torch.Tensor = torch.tensor([]).to(device,non_blocking=True)
     with torch.no_grad():
