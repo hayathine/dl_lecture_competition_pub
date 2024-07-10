@@ -225,7 +225,7 @@ def main(args: DictConfig):
             os.makedirs('checkpoints')
         
         # torch.save(model.state_dict(), model_load_path)
-        model.dump(model,open(f"{model_save_path}.pkl", 'wb'))
+        pickle.dump(model,open(f"{model_save_path}.pkl", 'wb'))
         print(f"Model saved to {model_save_path}")
 
     # ------------------
