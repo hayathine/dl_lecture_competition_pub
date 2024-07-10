@@ -96,13 +96,12 @@ def main(args: DictConfig):
     num_bins:
     イベントデータのビン数。
     """
-    # TODO:num_binsを2に変更
     loader = DatasetProvider(
         dataset_path=Path(args.dataset_path),
         representation_type=RepresentationType.VOXEL,
         delta_t_ms=100,
-        num_bins=args.train.num_bins,
         visualize=True,
+        num_bins=args.train.num_bins,
         sequenceRecurrent=args.sequenceRecurrent,
         config=None
     )

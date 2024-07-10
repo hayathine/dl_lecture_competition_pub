@@ -5,7 +5,6 @@ seed: 42
 test: false
 num_epoch: 1
 num_workers: 2
-num_bins: 4
 save_name: n001.pth
 load_name: None
 detail: False

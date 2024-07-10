@@ -569,6 +569,7 @@ class DatasetProvider:
                 
                 train_sequences.append(Sequence(Path(train_path) / seq,
                                         representation_type=representation_type, mode="train",
+                                        num_bins=num_bins,
                                         transforms={'randomcrop': (400, 600)},
                                     load_gt=True, **extra_arg))
                 self.train_dataset: torch.utils.data.ConcatDataset[Sequence] = torch.utils.data.ConcatDataset(train_sequences)
@@ -602,6 +603,7 @@ def train_collate(sample_list):
         _type_: _description_
     """
     batch = dict()
+    # sample_list[0]:field_name, 
     for field_name in sample_list[0]:
         if field_name == 'timestamp':
             batch['timestamp'] = [sample[field_name] for sample in sample_list]
