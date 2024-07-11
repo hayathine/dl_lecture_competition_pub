@@ -152,7 +152,7 @@ def main(args: DictConfig):
         print(f"Model loaded from {model_load_path}")
     else:
         print("First training model")
-    model = EVFlowNet(args.train).to(device,non_blocking=True)
+        model = EVFlowNet(args.train).to(device,non_blocking=True)
 
     # ------------------
     #   optimizer
