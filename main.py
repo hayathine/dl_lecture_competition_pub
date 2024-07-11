@@ -147,7 +147,7 @@ def main(args: DictConfig):
     #       Model
     # ------------------
     if os.path.exists(model_load_path):
-        model = pickle.load(open(f'{model_load_path}.pkl', 'rb'))
+        model = pickle.load(open(f'{model_load_path}', 'rb'))
         # model.load_state_dict(torch.load(model_load, map_location=device))
         print(f"Model loaded from {model_load_path}")
     else:
