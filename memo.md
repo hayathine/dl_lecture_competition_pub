@@ -67,3 +67,9 @@ RuntimeError: Error(s) in loading state_dict for EVFlowNet:
 	size mismatch for encoder1.0.weight: copying a param with shape torch.Size([64, 4, 3, 3]) from checkpoint, the shape in current model is torch.Size([64, 16, 3, 3]).![1720654695562](image/memo/1720654695562.png)
 
 model.load_state_dict(torch.load(model_load, map_location=device))
+
+#### 2024/07/11
+
+画像の前処理
+
+validの実装
