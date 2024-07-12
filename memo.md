@@ -73,3 +73,15 @@ model.load_state_dict(torch.load(model_load, map_location=device))
 画像の前処理
 
 validの実装
+
+アンサンプル
+
+データが2015個なのでバッチサイズ5、疑似拡張13で65のバッチサイズにする
+
+反教師あり学習はテストデータが97と少ないので実装しない
+
+スケジューラー使用
+
+ファインチューニング
+
+warmup

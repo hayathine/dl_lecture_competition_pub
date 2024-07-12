@@ -11,6 +11,7 @@ from src.datasets import train_collate
 from tqdm import tqdm
 from pathlib import Path
 from typing import Dict, Any
+from timm.scheduler import CosineLRScheduler
 import pandas as pd
 import pickle
 import os
@@ -161,6 +162,8 @@ def main(args: DictConfig):
         optimizer = torch.optim.Adam(model.parameters(), lr=args.train.initial_learning_rate, weight_decay=args.train.weight_decay)
     else:
         optimizer = torch.optim.AdamW(model.parameters(), lr=args.train.initial_learning_rate, weight_decay=args.train.weight_decay)
+    scheduler = CosineLRScheduler(optimizer, t_initial=args.train.epoch, lr_min=1e-4, 
+                            warmup_t=4, warmup_lr_init=5e-5, warmup_prefix=True)
     # ------------------
     #   Start training
     # ------------------
@@ -208,7 +211,7 @@ def main(args: DictConfig):
                 step_count = 0
                 # 勾配クリッピング
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-                optimizer.step()
+                scheduler.step()
                 optimizer.zero_grad()
             total_loss += loss.item()
 
