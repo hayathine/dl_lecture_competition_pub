@@ -150,7 +150,7 @@ def main(args: DictConfig):
     if os.path.exists(model_load_path):
         model = pickle.load(open(f'{model_load_path}', 'rb'))
         # model.load_state_dict(torch.load(model_load, map_location=device))
-        print(f"Model loaded from {model_load_path}")
+        print(f"-----Model loaded from {model_load_path}-----")
     else:
         print("First training model")
         model = EVFlowNet(args.train).to(device,non_blocking=True)
@@ -258,7 +258,7 @@ def main(args: DictConfig):
     model.eval()
     flow: torch.Tensor = torch.tensor([]).to(device,non_blocking=True)
     with torch.no_grad():
-        print(f"start test:{model_load}_model")
+        print(f"-----start test:{model_load}-----")
         for batch in tqdm(test_data):
             batch: Dict[str, Any]
             event_image = batch["event_volume"].to(device,non_blocking=True) # [1, 4, 480, 640]
