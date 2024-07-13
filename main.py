@@ -188,7 +188,8 @@ def main(args: DictConfig):
     model.train()
     for epoch in range(args.train.epochs):
         model_save_path = f'checkpoints/{current_time}_{epoch}_{SAVE_NAME}'
-        scheduler.step(epoch+1)
+        scheduler.step(epoch)
+        print(f'learning_late: {optimizer.param_groups[0]["lr"]}')
         total_loss = 0
         batch_loss = 0
         step_count = 0
@@ -209,7 +210,6 @@ def main(args: DictConfig):
             batch_loss += loss.item()
             if step_count % args.batch_extend == 0 :  # イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
                 print(f'step_update_{i//args.batch_extend}_loss: {batch_loss/args.batch_extend}')
-                print(f'learning_late: {optimizer.param_groups[0]["lr"]}')
                 batch_loss = 0
                 step_count = 0
                 # 勾配クリッピング
