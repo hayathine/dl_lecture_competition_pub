@@ -162,7 +162,7 @@ def main(args: DictConfig):
         optimizer = torch.optim.Adam(model.parameters(), lr=args.train.initial_learning_rate, weight_decay=args.train.weight_decay)
     else:
         optimizer = torch.optim.AdamW(model.parameters(), lr=args.train.initial_learning_rate, weight_decay=args.train.weight_decay)
-    scheduler = CosineLRScheduler(optimizer, t_initial=args.train.epoch, lr_min=1e-4, 
+    scheduler = CosineLRScheduler(optimizer, t_initial=args.train.epochs, lr_min=1e-4, 
                             warmup_t=4, warmup_lr_init=5e-5, warmup_prefix=True)
     # ------------------
     #   Start training
