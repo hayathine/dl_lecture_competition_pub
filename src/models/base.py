@@ -6,12 +6,13 @@ class build_resnet_block(nn.Module):
     """
     a resnet block which includes two general_conv2d
     """
-    def __init__(self, channels, layers=2, do_batch_norm=False, height=480, width=640):
+    def __init__(self, channels, layers=2, do_batch_norm=False, height=480, width=640, dropout=0):
         super(build_resnet_block,self).__init__()
         self._channels = channels
         self._layers = layers
         self.height = int(height)
         self.width = int(width)
+        self.dropout = dropout
 
         self.res_block = nn.Sequential(*[general_conv2d(in_channels=self._channels,
                                             out_channels=self._channels,
@@ -25,7 +26,7 @@ class build_resnet_block(nn.Module):
         x = self.res_block(inputs)
         # x = F.layer_norm(x, normalized_shape=[2, self.height,self.width])
         x = F.relu(x)
-        x = F.dropout(x, p=0.0)
+        x = F.dropout(x, p=self.dropout)
 
         input = inputs + x
         return input

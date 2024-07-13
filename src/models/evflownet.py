@@ -20,7 +20,8 @@ class EVFlowNet(nn.Module):
                                     stride=2, 
                                     height=HEIGHT,
                                     width=WIDTH,
-                                    padding=1
+                                    padding=1,
+                                    dropout=self._args.dropout
                                     )
         
         self.encoder2 = general_conv2d(
@@ -30,7 +31,8 @@ class EVFlowNet(nn.Module):
                                     stride=2, 
                                     height=HEIGHT/2,
                                     width=WIDTH/2,
-                                    padding=1)
+                                    padding=1,
+                                    dropout=self._args.dropout)
         
         self.encoder3 = general_conv2d(
                                     2*_BASE_CHANNELS, 
@@ -39,7 +41,8 @@ class EVFlowNet(nn.Module):
                                     stride=2, 
                                     height=HEIGHT/4,
                                     width=WIDTH/4,
-                                    padding=1)
+                                    padding=1,
+                                    dropout=self._args.dropout)
         
         self.encoder4 = general_conv2d(
                                     4*_BASE_CHANNELS, 
@@ -48,13 +51,15 @@ class EVFlowNet(nn.Module):
                                     height=HEIGHT/8,
                                     width=WIDTH/8,
                                     stride=2, 
-                                    padding=1)
+                                    padding=1,
+                                    dropout=self._args.dropout)
 
         self.resnet_block = nn.Sequential(*[build_resnet_block(
                                             8*_BASE_CHANNELS, 
                                             do_batch_norm=not self._args.no_batch_norm,
                                             height=HEIGHT/16,
-                                            width=WIDTH/16
+                                            width=WIDTH/16,
+                                            dropout=self._args.dropout
                                             ) for i in range(2)])
 
         self.decoder1 = upsample_conv2d_and_predict_flow(in_channels=16*_BASE_CHANNELS,
