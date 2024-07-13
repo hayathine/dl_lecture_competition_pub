@@ -187,6 +187,7 @@ def main(args: DictConfig):
     model.train()
     for epoch in range(args.train.epochs):
         model_save_path = f'checkpoints/{current_time}_{epoch}_{SAVE_NAME}'
+        scheduler.step(epoch+1)
         total_loss = 0
         batch_loss = 0
         step_count = 0
@@ -211,7 +212,7 @@ def main(args: DictConfig):
                 step_count = 0
                 # 勾配クリッピング
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-                scheduler.step()
+                optimizer.step()
                 optimizer.zero_grad()
             total_loss += loss.item()
 
