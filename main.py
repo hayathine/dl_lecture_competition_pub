@@ -209,7 +209,7 @@ def main(args: DictConfig):
             batch_loss += loss.item()
             if step_count % args.batch_extend == 0 :  # イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
                 print(f'step_update_{i//args.batch_extend}_loss: {batch_loss/args.batch_extend}')
-                print(f'learning_late:{scheduler.get_epoch_values(i)}, {optimizer.param_groups[0]["lr"]}')
+                print(f'learning_late: {optimizer.param_groups[0]["lr"]}')
                 batch_loss = 0
                 step_count = 0
                 # 勾配クリッピング
