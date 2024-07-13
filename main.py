@@ -162,8 +162,9 @@ def main(args: DictConfig):
         optimizer = torch.optim.Adam(model.parameters(), lr=args.train.initial_learning_rate, weight_decay=args.train.weight_decay)
     else:
         optimizer = torch.optim.AdamW(model.parameters(), lr=args.train.initial_learning_rate, weight_decay=args.train.weight_decay)
-    scheduler = CosineLRScheduler(optimizer, t_initial=args.train.epochs, lr_min=1e-4, 
-                            warmup_t=4, warmup_lr_init=5e-5, warmup_prefix=True)
+    if args.train.epochs != 0:
+        scheduler = CosineLRScheduler(optimizer, t_initial=args.train.epochs, lr_min=1e-4, 
+                                warmup_t=4, warmup_lr_init=5e-5, warmup_prefix=True)
     # ------------------
     #   Start training
     # ------------------
@@ -208,6 +209,7 @@ def main(args: DictConfig):
             batch_loss += loss.item()
             if step_count % args.batch_extend == 0 :  # イテレーションごとに更新することで，擬似的にバッチサイズを大きくしている
                 print(f'step_update_{i//args.batch_extend}_loss: {batch_loss/args.batch_extend}')
+                print(f'learning_late:{scheduler.get_epoch_values(i)}, {optimizer.param_groups[0]["lr"]}')
                 batch_loss = 0
                 step_count = 0
                 # 勾配クリッピング
