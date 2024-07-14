@@ -88,6 +88,7 @@ class EVFlowNet(nn.Module):
         
         self.dropout = nn.Dropout(p=self._args.dropout)
 
+    # torch.size([batch_size, ?, width, height])
     def forward(self, inputs: Dict[str, Any]) :
         # encoder
         skip_connections = {}
@@ -105,6 +106,7 @@ class EVFlowNet(nn.Module):
         skip_connections['skip3'] = inputs.clone()
 
         # transition
+        # torch.size([5, 512, 30, 40])
         inputs = self.resnet_block(inputs)
 
         # decoder

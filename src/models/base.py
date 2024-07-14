@@ -24,7 +24,6 @@ class build_resnet_block(nn.Module):
     def forward(self,input_res):
         inputs = input_res.clone()
         x = self.res_block(inputs)
-        # x = F.layer_norm(x, normalized_shape=[2, self.height,self.width])
         x = F.relu(x)
         # x = F.dropout(x, p=self.dropout)
 

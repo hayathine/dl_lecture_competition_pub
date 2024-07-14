@@ -14,7 +14,6 @@ import imageio.v3 as iio
 import torch
 import torch.utils.data
 from torchvision.transforms import RandomCrop
-from torchvision import transforms as tf
 from torch.utils.data import Dataset
 import zipfile
 
@@ -177,7 +176,7 @@ class EventSlicer:
 
 class Sequence(Dataset):
     def __init__(self, seq_path: Path, representation_type: RepresentationType, mode: str = 'test', delta_t_ms: int = 100,
-                 num_bins: int = 4, transforms=None, name_idx=0, visualize=False, load_gt=False):
+                num_bins: int = 4, transforms=None, name_idx=0, visualize=False, load_gt=False):
         assert num_bins >= 1
         assert delta_t_ms == 100
         assert seq_path.is_dir()

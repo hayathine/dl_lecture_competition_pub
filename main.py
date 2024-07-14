@@ -12,13 +12,34 @@ from tqdm import tqdm
 from pathlib import Path
 from typing import Dict, Any
 from timm.scheduler import CosineLRScheduler
-import torchvision.transforms.v2 as T
+from torchvision.transforms import v2
+from torchvision.transforms import functional as F
 import pandas as pd
 import pickle
 import os
 import datetime
 from pytz import timezone
 # trainデータの中身を確認する
+
+class FixRanomCrop(v2.RandomCrop):
+    def __call__(self, *args, **kwargs):
+        img, segms, bboxes = args
+        i, j, th, tw = self.get_params(img, self.size)
+        cropped_img = F.crop(img, i, j, th, tw)
+        cropped_segms = [F.crop(segm, i, j, th, tw) for segm in segms]
+        cropped_bboxes = [self.crop_bbox(bbox, i, j, th, tw) for bbox in bboxes]
+        return cropped_img, cropped_segms, cropped_bboxes
+
+    @staticmethod
+    def crop_bbox(bbox, i, j, th, tw):
+        x, y, bw, bh = bbox
+        start_x = max(0, x - j)
+        start_y = max(0, y - i)
+        stop_x = min(tw, x + bw - j)
+        stop_y = min(th, y + bh - i)
+        cropped_bbox = [start_x, start_y, stop_x - start_x, stop_y - start_y]
+        return cropped_bbox
+
 
 class RepresentationType(Enum):
     PATH = '/content/drive/MyDrive/DL_lesson/DLlast/checkpoints'
@@ -58,11 +79,11 @@ def get_time():
     return time.strftime("%Y%m%d%H%M")
 
 def transform(batch):
-    transform = T.Compose(
+    transform = v2.Compose(
         [
-            T.ToImage(),
-            T.RandomCrop((440,600), pad_if_needed=True,padding_mode='edge',padding=20), 
-            T.ToDtype(torch.float32,scale=True),])
+            v2.ToImage(),
+            FixRanomCrop((440,600), pad_if_needed=True,padding_mode='edge',padding=20), 
+            v2.ToDtype(torch.float32,scale=True),])
     return transform(batch)
 
 
@@ -97,9 +118,6 @@ def main(args: DictConfig):
             ├─zurich_city_11_b
             └─zurich_city_11_c
         '''
-        
-    # TODO:transformer追加
-    
     # ------------------
     #    Dataloader
     # ------------------
@@ -207,10 +225,8 @@ def main(args: DictConfig):
             optimizer.zero_grad()
             step_count += 1
             batch: Dict[str, Any]
-            event_image = transform(batch["event_volume"]).to(device,non_blocking=True) # [B, 4, 480, 640]
-            # event_image = batch["event_volume"].to(device,non_blocking=True) # [B, 4, 480, 640]
-            ground_truth_flow = transform(batch["flow_gt"]).to(device,non_blocking=True) # [B, 2, 480, 640]
-            # ground_truth_flow = batch["flow_gt"].to(device,non_blocking=True) # [B, 2, 480, 640]
+            event_image = batch["event_volume"].to(device,non_blocking=True) # [B, 4, 480, 640]
+            ground_truth_flow = batch["flow_gt"].to(device,non_blocking=True) # [B, 2, 480, 640]
             flow_dict, _ = model(event_image) # [B, 2, 480, 640]
             loss = 0
             for key in flow_dict.keys():
