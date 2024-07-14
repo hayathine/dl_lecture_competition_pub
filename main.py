@@ -113,7 +113,6 @@ def main(args: DictConfig):
         dataset_path=Path(args.dataset_path),
         representation_type=RepresentationType.VOXEL,
         delta_t_ms=100,
-        transform=transform,
         visualize=True,
         num_bins=args.train.num_bins,
         sequenceRecurrent=args.sequenceRecurrent,
@@ -132,6 +131,7 @@ def main(args: DictConfig):
                                 num_workers=args.num_workers,
                                 pin_memory=True,
                                 shuffle=args.data_loader.train.shuffle,
+                                transform=transform,
                                 collate_fn=collate, # collate_fnはデータをバッチにまとめる関数
                                 drop_last=False)
     test_data = DataLoader(test_set,
