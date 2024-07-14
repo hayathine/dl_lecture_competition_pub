@@ -318,6 +318,26 @@ class Sequence(Dataset):
         return rectify_map[y, x]
     
     def get_data(self, index) -> Dict[str, any]:
+        """_summary_
+
+        Args:
+            index (_type_): _description_
+
+        Raises:
+            NotImplementedError: _description_
+
+        Returns:
+            Dict[str, any]: _description_
+            output['event_volume']: torch.tensor
+            output['flow_gt']: torch.tensor
+            output['name_map']: int
+            output['save_submission']: bool
+            output['visualize']: bool
+            output['file_index']: int
+            output['timestamp']: int
+            output['seq_name']: str
+            
+        """
         ts_start: int = self.timestamps_flow[index] - self.delta_t_us
         ts_end: int = self.timestamps_flow[index]
 
@@ -476,11 +496,20 @@ class SequenceRecurrent(Sequence):
         valid_idx = self.valid_indices[idx]
 
         sequence = []
-        j = valid_idx
 
-        ts_cur = self.timestamps_flow[j]
+        ts_cur = self.timestamps_flow[valid_idx]
         # Add first sample
-        sample = self.get_data(j)
+        # sample = self.get_data(j)
+        # get_data = output
+        # output['event_volume']: torch.tensor
+        # output['flow_gt']: torch.tensor
+        # output['name_map']: int
+        # output['save_submission']: bool
+        # output['visualize']: bool
+        # output['file_index']: int
+        # output['timestamp']: int
+        # output['seq_name']: str
+        sample = self.get_data(valid_idx)
         sequence.append(sample)
 
         # Data augmentation according to first sample
@@ -492,12 +521,12 @@ class SequenceRecurrent(Sequence):
             flip = sample['flipped']
 
         for i in range(self.sequence_length-1):
-            j += 1
+            valid_idx += 1
             ts_old = ts_cur
-            ts_cur = self.timestamps_flow[j]
+            ts_cur = self.timestamps_flow[valid_idx]
             assert(ts_cur-ts_old < 100000 + 1000)
             sample = self.get_data(
-                j, crop_window=crop_window, flip=flip)
+                valid_idx, crop_window=crop_window, flip=flip)
             sequence.append(sample)
 
         # Check if the current sample is the first sample of a continuous sequence
@@ -510,7 +539,7 @@ class SequenceRecurrent(Sequence):
 
         # TODO:random crop
         if self.crop_size is not None:
-            i, j, h, w = RandomCrop.get_params(
+            i, valid_idx, h, w = RandomCrop.get_params(
                 sample["event_volume"], output_size=self.crop_size)
             keys_to_crop = ["event_volume_old", "event_volume_new",
                             "flow_gt_event_volume_old", "flow_gt_event_volume_new", 
@@ -520,11 +549,11 @@ class SequenceRecurrent(Sequence):
                 for key, value in sample.items():
                     if key in keys_to_crop:
                         if isinstance(value, torch.Tensor):
-                            sample[key] = tf.functional.crop(value, i, j, h, w)
+                            sample[key] = tf.functional.crop(value, i, valid_idx, h, w)
                         elif isinstance(value, list) or isinstance(value, tuple):
                             sample[key] = [tf.functional.crop(
-                                v, i, j, h, w) for v in value]
-        return sequence
+                                v, i, valid_idx, h, w) for v in value]
+        return sample # list of sample sequence を使う意味はなさそう？
 
 
 class DatasetProvider:
@@ -593,7 +622,7 @@ class DatasetProvider:
             len(self.train_dataset)), True)
 
 # datasetprovider
-# 
+# sample_listは__getitem__の返り値
 def train_collate(sample_list):
     """_summary_
 
@@ -626,7 +655,7 @@ def train_collate(sample_list):
     return batch
 
 
-def rec_train_collate(sample_list):
+def rec_train_collate(sample_list): #sample_list=sequence:list of sample: dict
     seq_length = len(sample_list[0])
     seq_of_batch = []
     for i in range(seq_length):
