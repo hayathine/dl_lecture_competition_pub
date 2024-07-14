@@ -59,7 +59,7 @@ def get_time():
 
 def transform(batch):
     transform = T.Compose(
-        [T.RandomCrop((400,600), pad_if_needed=True), 
+        [T.RandomCrop((440,600), pad_if_needed=True,padding_mode='edge',padding=20), 
         T.ToTensor(),])
     return transform(batch)
 
