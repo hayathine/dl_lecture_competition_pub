@@ -23,22 +23,10 @@ from pytz import timezone
 
 class FixRanomCrop(v2.RandomCrop):
     def __call__(self, *args, **kwargs):
-        img, segms, bboxes = args
+        img = args
         i, j, th, tw = self.get_params(img, self.size)
         cropped_img = F.crop(img, i, j, th, tw)
-        cropped_segms = [F.crop(segm, i, j, th, tw) for segm in segms]
-        cropped_bboxes = [self.crop_bbox(bbox, i, j, th, tw) for bbox in bboxes]
-        return cropped_img, cropped_segms, cropped_bboxes
-
-    @staticmethod
-    def crop_bbox(bbox, i, j, th, tw):
-        x, y, bw, bh = bbox
-        start_x = max(0, x - j)
-        start_y = max(0, y - i)
-        stop_x = min(tw, x + bw - j)
-        stop_y = min(th, y + bh - i)
-        cropped_bbox = [start_x, start_y, stop_x - start_x, stop_y - start_y]
-        return cropped_bbox
+        return cropped_img
 
 
 class RepresentationType(Enum):

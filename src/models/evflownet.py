@@ -48,8 +48,8 @@ class EVFlowNet(nn.Module):
                                     4*_BASE_CHANNELS, 
                                     8*_BASE_CHANNELS, 
                                     kernel_size=3, 
-                                    height=HEIGHT/8,
-                                    width=WIDTH/8,
+                                    height=HEIGHT/4, #TODO: ここは/8にする
+                                    width=WIDTH/4,
                                     stride=2, 
                                     padding=1,
                                     dropout=self._args.dropout)
