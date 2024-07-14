@@ -7,7 +7,7 @@ import numpy as np
 from src.models.evflownet import EVFlowNet
 from src.datasets import DatasetProvider
 from enum import Enum, auto
-from src.datasets import train_collate
+from src.datasets import train_collate, rec_train_collate
 from tqdm import tqdm
 from pathlib import Path
 from typing import Dict, Any
@@ -101,7 +101,7 @@ def main(args: DictConfig):
     num_bins:
     イベントデータのビン数。
     """
-    loader = DatasetProvider(
+    train_loader = DatasetProvider(
         dataset_path=Path(args.dataset_path),
         representation_type=RepresentationType.VOXEL,
         delta_t_ms=100,
@@ -110,16 +110,30 @@ def main(args: DictConfig):
         sequenceRecurrent=args.sequenceRecurrent,
         config=None
     )
-    print(f"train data: {len(loader.get_train_dataset())}, test data: {len(loader.get_test_dataset())}")
+
+    test_loader = DatasetProvider(
+        dataset_path=Path(args.dataset_path),
+        representation_type=RepresentationType.VOXEL,
+        delta_t_ms=100,
+        visualize=True,
+        num_bins=args.train.num_bins,
+        sequenceRecurrent=False,
+        config=None
+    )
+    print(f"train data: {len(train_loader.get_train_dataset())}, test data: {len(test_loader.get_test_dataset())}")
     # print(f'summary: {loader.summary()}')
-    train_set = loader.get_train_dataset()
-    test_set = loader.get_test_dataset()
+    train_set = train_loader.get_train_dataset()
+    test_set = test_loader.get_test_dataset()
+    if args.sequenceRecurrent == True:
+        collate = rec_train_collate
+    else:
+        collate = train_collate
     train_data = DataLoader(train_set,
                                 batch_size=args.data_loader.train.batch_size,
                                 num_workers=args.num_workers,
                                 pin_memory=True,
                                 shuffle=args.data_loader.train.shuffle,
-                                collate_fn=train_collate, # collate_fnはデータをバッチにまとめる関数
+                                collate_fn=collate, # collate_fnはデータをバッチにまとめる関数
                                 drop_last=False)
     test_data = DataLoader(test_set,
                                 batch_size=args.data_loader.test.batch_size,
