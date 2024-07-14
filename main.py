@@ -12,6 +12,7 @@ from tqdm import tqdm
 from pathlib import Path
 from typing import Dict, Any
 from timm.scheduler import CosineLRScheduler
+import torchvision.transforms as T
 import pandas as pd
 import pickle
 import os
@@ -55,6 +56,13 @@ def save_optical_flow_to_npy(flow: torch.Tensor, file_name: str):
 def get_time():
     time = datetime.datetime.now(timezone('Asia/Tokyo'))
     return time.strftime("%Y%m%d%H%M")
+
+def transform(batch):
+    transform = T.Compose(
+        [T.RandomCrop((400,600), pad_if_needed=True), 
+        T.ToTensor(),])
+    return transform(batch)
+
 
 @hydra.main(version_base=None, config_path="configs", config_name="base")
 def main(args: DictConfig):
@@ -101,29 +109,20 @@ def main(args: DictConfig):
     num_bins:
     イベントデータのビン数。
     """
-    train_loader = DatasetProvider(
+    loader = DatasetProvider(
         dataset_path=Path(args.dataset_path),
         representation_type=RepresentationType.VOXEL,
         delta_t_ms=100,
+        transform=transform,
         visualize=True,
         num_bins=args.train.num_bins,
         sequenceRecurrent=args.sequenceRecurrent,
         config=None
     )
-
-    test_loader = DatasetProvider(
-        dataset_path=Path(args.dataset_path),
-        representation_type=RepresentationType.VOXEL,
-        delta_t_ms=100,
-        visualize=True,
-        num_bins=args.train.num_bins,
-        sequenceRecurrent=False,
-        config=None
-    )
-    print(f"train data: {len(train_loader.get_train_dataset())}, test data: {len(test_loader.get_test_dataset())}")
+    print(f"train data: {len(loader.get_train_dataset())}, test data: {len(loader.get_test_dataset())}")
     # print(f'summary: {loader.summary()}')
-    train_set = train_loader.get_train_dataset()
-    test_set = test_loader.get_test_dataset()
+    train_set = loader.get_train_dataset()
+    test_set = loader.get_test_dataset()
     if args.sequenceRecurrent == True:
         collate = rec_train_collate
     else:
@@ -151,7 +150,6 @@ def main(args: DictConfig):
         Key: flow_gt, Type: torch.Tensor, Shape: torch.Size([Batch, 2, 480, 640]) => オプティカルフローデータのバッチ
         Key: flow_gt_valid_mask, Type: torch.Tensor, Shape: torch.Size([Batch, 1, 480, 640]) => オプティカルフローデータのvalid. ベースラインでは使わない
         TODO: flow_gt_valid_mask多分何かに使える
-
     
     test data:
         Type of batch: Dict
@@ -194,11 +192,6 @@ def main(args: DictConfig):
     
     """
 
-    # if os.path.exists(model_load_path):
-    #     model.load_state_dict(torch.load(model_load_path, map_location=device))
-    #     print(f"Model loaded from {model_load_path}")
-    # else:
-    #     print("First training model")
     model.train()
     for epoch in range(args.train.epochs):
         model_save_path = f'checkpoints/{current_time}_{epoch}_{SAVE_NAME}'
