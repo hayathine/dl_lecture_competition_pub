@@ -114,11 +114,11 @@ def main(args: DictConfig):
         representation_type=RepresentationType.VOXEL,
         delta_t_ms=100,
         visualize=True,
+        transform=transform,
         num_bins=args.train.num_bins,
         sequenceRecurrent=args.sequenceRecurrent,
         config=None
     )
-    print(f"train data: {len(loader.get_train_dataset())}, test data: {len(loader.get_test_dataset())}")
     # print(f'summary: {loader.summary()}')
     train_set = loader.get_train_dataset()
     test_set = loader.get_test_dataset()
@@ -191,6 +191,7 @@ def main(args: DictConfig):
     
     """
 
+    print(f"train data: {len(loader.get_train_dataset())}, test data: {len(loader.get_test_dataset())}")
     model.train()
     for epoch in range(args.train.epochs):
         model_save_path = f'checkpoints/{current_time}_{epoch}_{SAVE_NAME}'

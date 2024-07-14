@@ -177,7 +177,7 @@ class EventSlicer:
 
 class Sequence(Dataset):
     def __init__(self, seq_path: Path, representation_type: RepresentationType, mode: str = 'test', delta_t_ms: int = 100,
-                 num_bins: int = 4, transforms=[], name_idx=0, visualize=False, load_gt=False):
+                 num_bins: int = 4, transforms=None, name_idx=0, visualize=False, load_gt=False):
         assert num_bins >= 1
         assert delta_t_ms == 100
         assert seq_path.is_dir()
@@ -382,6 +382,8 @@ class Sequence(Dataset):
 
     def __getitem__(self, idx):
         sample = self.get_data(idx)
+        sample['event_volume'] = self.transforms(sample['event_volume'])
+        sample['flow_gt'] = self.transforms(sample['flow_gt'])
         return sample
 
     def get_voxel_grid(self, idx):
@@ -558,7 +560,7 @@ class SequenceRecurrent(Sequence):
 
 class DatasetProvider:
     def __init__(self, dataset_path: Path, representation_type: RepresentationType, delta_t_ms: int = 100, num_bins=4,
-                sequenceRecurrent=False,
+                sequenceRecurrent=False,transform=None,
                 config=None, visualize=False):
         test_path = Path(os.path.join(dataset_path, 'test'))
         train_path = Path(os.path.join(dataset_path, 'train'))
@@ -567,13 +569,14 @@ class DatasetProvider:
         assert delta_t_ms == 100
         self.config = config
         self.name_mapper_test = []
+        self.transform = transform
 
         # Assemble test sequences
         test_sequences = list()
         for child in test_path.iterdir():
             self.name_mapper_test.append(str(child).split("/")[-1])
             test_sequences.append(Sequence(child, representation_type, 'test', delta_t_ms, num_bins,
-                                                transforms=[],
+                                                transforms=None,
                                                 name_idx=len(
                                                     self.name_mapper_test)-1,
                                                     visualize=visualize))
@@ -591,7 +594,7 @@ class DatasetProvider:
             if sequenceRecurrent == True:
                 train_sequences.append(SequenceRecurrent(Path(train_path) / seq,
                                         representation_type=representation_type, mode="train",
-                                        transforms={'randomcrop': (400, 600)},
+                                        transforms=self.transform,
                                     load_gt=True, **extra_arg))
                 self.train_dataset: torch.utils.data.ConcatDataset[Sequence] = torch.utils.data.ConcatDataset(train_sequences)
             else:
@@ -599,7 +602,7 @@ class DatasetProvider:
                 train_sequences.append(Sequence(Path(train_path) / seq,
                                         representation_type=representation_type, mode="train",
                                         num_bins=num_bins,
-                                        transforms={'randomcrop': (400, 600)},
+                                        transforms=self.transform,
                                     load_gt=True, **extra_arg))
                 self.train_dataset: torch.utils.data.ConcatDataset[Sequence] = torch.utils.data.ConcatDataset(train_sequences)
 
