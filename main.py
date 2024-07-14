@@ -12,7 +12,7 @@ from tqdm import tqdm
 from pathlib import Path
 from typing import Dict, Any
 from timm.scheduler import CosineLRScheduler
-import torchvision.transforms as T
+import torchvision.transforms.v2 as T
 import pandas as pd
 import pickle
 import os
@@ -131,7 +131,6 @@ def main(args: DictConfig):
                                 num_workers=args.num_workers,
                                 pin_memory=True,
                                 shuffle=args.data_loader.train.shuffle,
-                                transform=transform,
                                 collate_fn=collate, # collate_fnはデータをバッチにまとめる関数
                                 drop_last=False)
     test_data = DataLoader(test_set,
@@ -205,8 +204,10 @@ def main(args: DictConfig):
             optimizer.zero_grad()
             step_count += 1
             batch: Dict[str, Any]
-            event_image = batch["event_volume"].to(device,non_blocking=True) # [B, 4, 480, 640]
-            ground_truth_flow = batch["flow_gt"].to(device,non_blocking=True) # [B, 2, 480, 640]
+            event_image = transform(batch["event_volume"]).to(device,non_blocking=True) # [B, 4, 480, 640]
+            # event_image = batch["event_volume"].to(device,non_blocking=True) # [B, 4, 480, 640]
+            ground_truth_flow = transform(batch["flow_gt"]).to(device,non_blocking=True) # [B, 2, 480, 640]
+            # ground_truth_flow = batch["flow_gt"].to(device,non_blocking=True) # [B, 2, 480, 640]
             flow_dict, _ = model(event_image) # [B, 2, 480, 640]
             loss = 0
             for key in flow_dict.keys():
