@@ -382,10 +382,12 @@ class Sequence(Dataset):
 
     def __getitem__(self, idx):
         sample = self.get_data(idx)
-        print(f'event_volume_shape::::::{sample["event_volume"].shape}')
-        print(f'flow_gt_shape::::::{sample["flow_gt"].shape}')
-        sample['event_volume'] = self.transforms(sample['event_volume']) # sample['event_volume']: tuple?
-        sample['flow_gt'] = self.transforms(sample['flow_gt'])
+        # print(f'event_volume_shape::::::{sample["event_volume"].shape}')
+        # print(f'flow_gt_shape::::::{sample["flow_gt"].shape}')
+        print(f'event_volume_type::::::{type(sample["event_volume"])}')
+        print(f'flow_gt_type::::::{type(sample["flow_gt"])}')
+        sample['event_volume'] = self.transforms(sample['event_volume']) # sample['event_volume']: torch.tendor
+        sample['flow_gt'] = self.transforms(sample['flow_gt']) # sample['flow_gt']: list?
         return sample
 
     def get_voxel_grid(self, idx):
