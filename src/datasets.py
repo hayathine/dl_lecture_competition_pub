@@ -367,7 +367,7 @@ class Sequence(Dataset):
         else:
             event_representation = self.events_to_voxel_grid(
                 p, t, x_rect, y_rect)
-            output['event_volume'] = self.transforms(event_representation)
+            output['event_volume'] = event_representation
         output['name_map'] = self.name_idx
         
         if self.load_gt:
@@ -386,7 +386,7 @@ class Sequence(Dataset):
         # print(f'flow_gt_shape::::::{sample["flow_gt"].shape}')
         print(f'event_volume_type::::::{type(sample["event_volume"])}')
         print(f'flow_gt_type::::::{type(sample["flow_gt"])}')
-        # sample['event_volume'] = self.transforms(sample['event_volume']) # sample['event_volume']: torch.tendor
+        sample['event_volume'] = self.transforms(sample['event_volume']) # sample['event_volume']: torch.tendor
         # sample['flow_gt'] = self.transforms(sample['flow_gt']) # sample['flow_gt']: list?
         return sample
 
