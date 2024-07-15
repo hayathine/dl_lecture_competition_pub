@@ -372,7 +372,7 @@ class Sequence(Dataset):
         
         if self.load_gt:
             output['flow_gt'
-                ] = [self.transforms(torch.tensor(x)) for x in self.load_flow(self.flow_png[index])]
+                ] = [self.transforms(x) for x in self.load_flow(self.flow_png[index])]
 
             output['flow_gt'
                 ][0] = torch.moveaxis(output['flow_gt'][0], -1, 0)
@@ -384,8 +384,8 @@ class Sequence(Dataset):
         sample = self.get_data(idx)
         # print(f'event_volume_shape::::::{sample["event_volume"].shape}')
         # print(f'flow_gt_shape::::::{sample["flow_gt"].shape}')
-        print(f'event_volume_type::::::{type(sample["event_volume"])}')
-        print(f'flow_gt_type::::::{type(sample["flow_gt"])}')
+        # print(f'event_volume_type::::::{type(sample["event_volume"])}')
+        # print(f'flow_gt_type::::::{type(sample["flow_gt"])}')
         sample['event_volume'] = self.transforms(sample['event_volume']) # sample['event_volume']: torch.tendor
         # sample['flow_gt'] = self.transforms(sample['flow_gt']) # sample['flow_gt']: list?
         return sample
