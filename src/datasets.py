@@ -249,8 +249,9 @@ class Sequence(Dataset):
 
 
         # Set event representation
+
         self.voxel_grid = VoxelGrid(
-                (self.num_bins, self.height, self.width), normalize=True)
+                (self.num_bins, self.height, self.width), normalize=True) # (self.num_bins, self.height, self.width)=input_size
         self.delta_t_us = delta_t_ms * 1000
 
         # Left events only
@@ -264,7 +265,7 @@ class Sequence(Dataset):
         self.h5rect = h5py.File(str(ev_rect_file), 'r')
         self.rectify_ev_map = self.h5rect['rectify_map'][()]
 
-
+    # event_volumeの中身
     def events_to_voxel_grid(self, p, t, x, y, device: str = 'cpu'):
         t = (t - t[0]).astype('float32')
         t = (t/t[-1])
@@ -381,7 +382,9 @@ class Sequence(Dataset):
 
     def __getitem__(self, idx):
         sample = self.get_data(idx)
-        sample['event_volume'] = self.transforms(sample['event_volume'])
+        print(f'event_volume_shape::::::{sample['event_volume'].shape}')
+        print(f'flow_gt_shape::::::{sample['flow_gt'].shape}')
+        sample['event_volume'] = self.transforms(sample['event_volume']) # sample['event_volume']: tuple?
         sample['flow_gt'] = self.transforms(sample['flow_gt'])
         return sample
 
