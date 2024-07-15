@@ -382,8 +382,8 @@ class Sequence(Dataset):
 
     def __getitem__(self, idx):
         sample = self.get_data(idx)
-        print(f'event_volume_shape::::::{sample['event_volume'].shape}')
-        print(f'flow_gt_shape::::::{sample['flow_gt'].shape}')
+        print(f'event_volume_shape::::::{sample["event_volume"].shape}')
+        print(f'flow_gt_shape::::::{sample["flow_gt"].shape}')
         sample['event_volume'] = self.transforms(sample['event_volume']) # sample['event_volume']: tuple?
         sample['flow_gt'] = self.transforms(sample['flow_gt'])
         return sample
